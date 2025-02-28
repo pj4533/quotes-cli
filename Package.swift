@@ -14,7 +14,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
-        .package(url: "https://github.com/swift-dotenv/SwiftDotEnv.git", from: "2.0.0"),
+        .package(url: "https://github.com/swiftpackages/DotEnv.git", from: "3.0.0"),
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.12.2")
     ],
     targets: [
@@ -22,7 +22,7 @@ let package = Package(
             name: "quotes-cli",
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .product(name: "DotEnv", package: "SwiftDotEnv"),
+                .product(name: "DotEnv", package: "DotEnv"),
                 .product(name: "SQLite", package: "SQLite.swift")
             ]
         ),
