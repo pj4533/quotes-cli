@@ -16,5 +16,12 @@ struct QuotesCommand: ParsableCommand {
         let service = OpenAIService()
         let quote = service.fetchQuote(theme: theme)
         print(quote)
+        
+        let inputHandler = UserInputHandler()
+        if let result = inputHandler.waitForArrowKey() {
+            print("Arrow key pressed: \(result)")
+        } else {
+            print("No input detected.")
+        }
     }
 }
