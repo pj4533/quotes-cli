@@ -13,13 +13,15 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0")
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
+        .package(url: "https://github.com/swift-dotenv/SwiftDotEnv.git", from: "2.0.0")
     ],
     targets: [
         .executableTarget(
             name: "quotes-cli",
             dependencies: [
-                .product(name: "ArgumentParser", package: "swift-argument-parser")
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "DotEnv", package: "SwiftDotEnv")
             ]
         ),
     ]
