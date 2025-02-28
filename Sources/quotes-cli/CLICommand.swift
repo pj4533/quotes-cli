@@ -15,12 +15,14 @@ struct QuotesCommand: ParsableCommand {
             print("Error: OPENAI_API_KEY not set in .env file.")
             exit(1)
         }
+        CLIOutput.printWelcome()
         print("Theme received: \(theme)")
         
         let service = OpenAIService()
         let inputHandler = UserInputHandler()
         
         while true {
+            CLIOutput.printLoading()
             let quote = service.fetchQuote(theme: theme)
             print("\nQuote: \(quote)\n")
             
@@ -32,9 +34,9 @@ struct QuotesCommand: ParsableCommand {
                 continue
             case "RIGHT":
                 quoteDatabase.saveQuote(quote)
-                print("Quote saved!")
+                CLIOutput.printSuccess()
             case "EXIT":
-                print("\nGoodbye!")
+                CLIOutput.printExit()
                 exit(0)
             default:
                 print("No valid input detected. Fetching new quote...")
