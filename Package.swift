@@ -12,11 +12,15 @@ let package = Package(
             targets: ["quotes-cli"]
         ),
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0")
+    ],
     targets: [
         .executableTarget(
             name: "quotes-cli",
-            dependencies: []
+            dependencies: [
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
+            ]
         ),
     ]
 )

@@ -1,1 +1,1 @@
-print("Hello from quotes-cli!")
+QuotesCommand.main()
