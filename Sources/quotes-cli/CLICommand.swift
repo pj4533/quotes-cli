@@ -12,5 +12,9 @@ struct QuotesCommand: ParsableCommand {
             exit(1)
         }
         print("Theme received: \(theme)")
+        
+        let service = OpenAIService()
+        let quote = service.fetchQuote(theme: theme)
+        print(quote)
     }
 }
