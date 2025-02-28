@@ -22,10 +22,17 @@ struct UserInputHandler {
             var c: UInt8 = 0
             let n = read(STDIN_FILENO, &c, 1)
             if n == 1 {
+                if c == 0x03 { // Ctrl+C
+                    return "EXIT"
+                }
+                
                 buffer.append(c)
-                if c == 0x1B { // ESC character
+                
+                if buffer.count == 1 && c == 0x1B { // ESC
                     continue
-                } else if buffer.count == 3 && buffer[0] == 0x1B && buffer[1] == 0x5B {
+                }
+                
+                if buffer.count == 3 && buffer[0] == 0x1B && buffer[1] == 0x5B {
                     switch buffer[2] {
                     case 0x41:
                         return "UP"
@@ -40,9 +47,10 @@ struct UserInputHandler {
                         continue
                     }
                 }
-                // Handle Ctrl+C (SIGINT)
-                if c == 0x03 {
-                    return "EXIT"
+                
+                // Reset buffer if no valid sequence is detected
+                if buffer.count >= 3 {
+                    buffer.removeAll()
                 }
             }
         }

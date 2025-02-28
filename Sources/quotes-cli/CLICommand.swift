@@ -18,20 +18,28 @@ struct QuotesCommand: ParsableCommand {
         print("Theme received: \(theme)")
         
         let service = OpenAIService()
-        let quote = service.fetchQuote(theme: theme)
-        print(quote)
-        
-        // Save the fetched quote to the database
-        quoteDatabase.saveQuote(quote)
-        
         let inputHandler = UserInputHandler()
-        if let result = inputHandler.waitForArrowKey() {
-            print("Arrow key pressed: \(result)")
-        } else {
-            print("No input detected.")
-        }
         
-        // For confirmation, save a test quote
-        quoteDatabase.saveQuote("Test quote")
+        while true {
+            let quote = service.fetchQuote(theme: theme)
+            print("\nQuote: \(quote)\n")
+            
+            let result = inputHandler.waitForArrowKey()
+            
+            switch result {
+            case "LEFT":
+                print("Discarded. Fetching new quote...")
+                continue
+            case "RIGHT":
+                quoteDatabase.saveQuote(quote)
+                print("Quote saved!")
+            case "EXIT":
+                print("\nGoodbye!")
+                exit(0)
+            default:
+                print("No valid input detected. Fetching new quote...")
+                continue
+            }
+        }
     }
 }
