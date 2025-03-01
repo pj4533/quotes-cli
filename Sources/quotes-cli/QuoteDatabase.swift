@@ -37,7 +37,7 @@ class QuoteDatabase {
         sqlite3_finalize(createTableStatement)
     }
 
-    func saveQuote(_ quoteText: String) {
+    public func saveQuote(_ quoteText: String) {
         let dateFormatter = ISO8601DateFormatter()
         let dateString = dateFormatter.string(from: Date())
         var insertStatement: OpaquePointer?
