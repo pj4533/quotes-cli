@@ -9,7 +9,7 @@ struct QuotesCommand: ParsableCommand {
 
     func run() {
         do {
-            try DotEnv().load()
+            try DotEnv.load()
         } catch {
             print("Error: Failed to load .env file.")
             exit(1)

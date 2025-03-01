@@ -35,8 +35,8 @@ class QuoteDatabase {
         let dateFormatter = ISO8601DateFormatter()
         let dateString = dateFormatter.string(from: Date())
         let insert = quotesTable.insert(
-            value: quote <- quoteText,
-            value: createdAt <- dateString
+            quote <- quoteText,
+            createdAt <- dateString
         )
         do {
             let rowId = try db.run(insert)
