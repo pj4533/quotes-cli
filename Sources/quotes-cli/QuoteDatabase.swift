@@ -40,7 +40,7 @@ class QuoteDatabase {
             self.createdAt <- dateString
         )
         do {
-            print("Executing SQL: \(insert.asSQL())")
+            print("Inserting quote: \(quoteText) with date: \(dateString)")
             let rowId = try db.run(insert)
             print("Quote saved with ID: \(rowId)")
         } catch {
