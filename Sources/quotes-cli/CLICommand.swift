@@ -45,12 +45,12 @@ struct QuotesCommand: AsyncParsableCommand {
                     CLIOutput.printExit()
                     QuotesCommand.exit(withError: ExitCode(0))
                 default:
-                    print("No valid input detected. Fetching new quote...")
-                    continue
+                    print("No valid input detected. Quitting...")
+                    QuotesCommand.exit(withError: ExitCode(0))
                 }
             } catch {
                 print("Error fetching quote: \(error.localizedDescription)")
-                continue
+                QuotesCommand.exit(withError: ExitCode(0))
             }
         }
     }
