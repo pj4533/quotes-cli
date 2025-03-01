@@ -34,11 +34,13 @@ class QuoteDatabase {
     func saveQuote(_ quoteText: String) {
         let dateFormatter = ISO8601DateFormatter()
         let dateString = dateFormatter.string(from: Date())
+        print("Preparing to save quote: \(quoteText) with date: \(dateString)")
         let insert = quotesTable.insert(
             self.quote <- quoteText,
             self.createdAt <- dateString
         )
         do {
+            print("Executing SQL: \(insert.asSQL())")
             let rowId = try db.run(insert)
             print("Quote saved with ID: \(rowId)")
         } catch {
