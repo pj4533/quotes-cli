@@ -8,17 +8,16 @@ struct QuotesCommand: ParsableCommand {
     var theme: String
 
     func run() {
-        let dotenv = DotEnv()
         do {
-            try dotenv.load()
+            try DotEnv.load()
         } catch {
             print("Error: Failed to load .env file.")
-            exit(1)
+            Swift.exit(1)
         }
         
-        guard let apiKey = dotenv.get("OPENAI_API_KEY") else {
+        guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
             print("Error: OPENAI_API_KEY not set in .env file.")
-            exit(1)
+            Swift.exit(1)
         }
         
         CLIOutput.printWelcome()
@@ -44,7 +43,7 @@ struct QuotesCommand: ParsableCommand {
                 CLIOutput.printSuccess()
             case "EXIT":
                 CLIOutput.printExit()
-                exit(0)
+                Swift.exit(0)
             default:
                 print("No valid input detected. Fetching new quote...")
                 continue
