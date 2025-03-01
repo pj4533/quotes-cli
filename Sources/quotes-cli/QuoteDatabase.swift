@@ -7,7 +7,7 @@ class QuoteDatabase {
     private let id = Expression<Int64>("id")
     private let quote = Expression<String>("quote")
     private let createdAt = Expression<String>("created_at") // Changed to String to handle Date serialization
-    
+
     init() {
         do {
             // Locate the quotes.db file in the current directory
@@ -18,7 +18,7 @@ class QuoteDatabase {
             fatalError("Unable to initialize database: \(error)")
         }
     }
-    
+
     func createTable() throws {
         do {
             try db.run(quotesTable.create(ifNotExists: true) { table in
@@ -30,11 +30,14 @@ class QuoteDatabase {
             throw error
         }
     }
-    
+
     func saveQuote(_ quoteText: String) {
         let dateFormatter = ISO8601DateFormatter()
         let dateString = dateFormatter.string(from: Date())
-        let insert = quotesTable.insert(quote <- quoteText, createdAt <- dateString)
+        let insert = quotesTable.insert(
+            value: quote <- quoteText,
+            value: createdAt <- dateString
+        )
         do {
             let rowId = try db.run(insert)
             print("Quote saved with ID: \(rowId)")
