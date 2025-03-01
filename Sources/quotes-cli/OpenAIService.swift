@@ -22,11 +22,10 @@ struct OpenAIService {
         
         let prompt = "Provide a short, compelling quote that embodies the themes of \(theme). Keep it under 20 words."
         let jsonBody: [String: Any] = [
-            "model": "gpt-4",
+            "model": "gpt-4o",
             "messages": [
                 ["role": "user", "content": prompt]
-            ],
-            "max_tokens": 60
+            ]
         ]
         
         do {
