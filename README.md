@@ -4,6 +4,8 @@
 
 A simple Swift-based command-line tool that generates short, compelling AI-generated quotes based on an optional theme.
 
+![](quotes.gif)
+
 The [spec](spec.md) and [prompt list](prompt_list.md) were generated using ideas from [Harper Reed](https://github.com/harperreed)'s blog post [here](https://harper.blog/2025/02/16/my-llm-codegen-workflow-atm/).
 
 ## Features
