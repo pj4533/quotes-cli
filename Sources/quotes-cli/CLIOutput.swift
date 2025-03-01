@@ -22,6 +22,13 @@ struct CLIOutput {
         print("\(green)\(successMessage)\(reset)")
     }
     
+    static func printDiscarded() {
+        let discardedMessage = "⬅️ Discarded. Fetching new quote..."
+        let orange = "\u{001B}[0;33m" // Orange (using yellow as a close alternative)
+        let reset = "\u{001B}[0;0m"
+        print("\(orange)\(discardedMessage)\(reset)")
+    }
+    
     static func printExit() {
         let exitMessage = "👋 Goodbye! Come back for more wisdom! ✨"
         let magenta = "\u{001B}[0;35m" // Magenta

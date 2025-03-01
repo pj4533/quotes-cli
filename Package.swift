@@ -4,9 +4,7 @@ import PackageDescription
 let package = Package(
     name: "quotes-cli",
     platforms: [
-        .iOS(.v12),
-        .macOS(.v10_13),
-        .watchOS(.v4)
+        .macOS(.v10_15)
     ],
     products: [
         .executable(
@@ -17,7 +15,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
         .package(url: "https://github.com/swiftpackages/DotEnv.git", from: "3.0.0"),
-        .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.13.0")
+        .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.15.0")
     ],
     targets: [
         .executableTarget(

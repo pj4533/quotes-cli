@@ -30,7 +30,7 @@ struct QuotesCommand: ParsableCommand {
             
             switch result {
             case "LEFT":
-                print("Discarded. Fetching new quote...")
+                CLIOutput.printDiscarded()
                 continue
             case "RIGHT":
                 quoteDatabase.saveQuote(quote)
