@@ -22,7 +22,6 @@ struct QuotesCommand: ParsableCommand {
         }
         
         CLIOutput.printWelcome()
-        print("Theme received: \(theme)")
         
         let quoteDatabase = QuoteDatabase()
         let service = OpenAIService()
