@@ -48,7 +48,6 @@ struct OpenAIService {
             
             guard (200...299).contains(httpResponse.statusCode) else {
                 result = "Error: HTTP \(httpResponse.statusCode)."
-                throw NSError(domain: "OpenAIService", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "HTTP \(httpResponse.statusCode)"])
                 return
             }
             

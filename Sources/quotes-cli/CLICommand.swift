@@ -33,6 +33,22 @@ struct QuotesCommand: ParsableCommand {
             do {
                 let quote = try service.fetchQuote(theme: theme)
                 print("\nQuote: \(quote)\n")
+                let result = inputHandler.waitForArrowKey()
+                
+                switch result {
+                case "LEFT":
+                    CLIOutput.printDiscarded()
+                    continue
+                case "RIGHT":
+                    quoteDatabase.saveQuote(quote)
+                    CLIOutput.printSuccess()
+                case "EXIT":
+                    CLIOutput.printExit()
+                    QuotesCommand.exit(withError: ExitCode(0))
+                default:
+                    print("No valid input detected. Fetching new quote...")
+                    continue
+                }
             } catch {
                 print("Error fetching quote: \(error.localizedDescription)")
                 continue
