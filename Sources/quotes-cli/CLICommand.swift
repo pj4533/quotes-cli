@@ -32,7 +32,7 @@ struct QuotesCommand: ParsableCommand {
             CLIOutput.printLoading()
             do {
                 let quote = try service.fetchQuote(theme: theme)
-                print("\n\(quote)\n")
+                print("\n\033[1;37m\(quote)\033[0m\n")
                 let result = inputHandler.waitForArrowKey()
                 
                 switch result {
