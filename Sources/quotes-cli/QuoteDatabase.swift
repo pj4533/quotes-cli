@@ -4,9 +4,9 @@ import SQLite
 class QuoteDatabase {
     private var db: Connection
     private let quotesTable = Table("quotes")
-    private let id = Expression<Int64>(value: "id")
-    private let quote = Expression<String>(value: "quote")
-    private let createdAt = Expression<String>(value: "created_at") // Changed to String to handle Date serialization
+    private let id = Expression<Int64>("id")
+    private let quote = Expression<String>("quote")
+    private let createdAt = Expression<String>("created_at") // Changed to String to handle Date serialization
 
     init() {
         do {
@@ -34,13 +34,11 @@ class QuoteDatabase {
     func saveQuote(_ quoteText: String) {
         let dateFormatter = ISO8601DateFormatter()
         let dateString = dateFormatter.string(from: Date())
-        print("Preparing to save quote: \(quoteText) with date: \(dateString)")
         let insert = quotesTable.insert(
             self.quote <- quoteText,
             self.createdAt <- dateString
         )
         do {
-            print("Inserting quote: \(quoteText) with date: \(dateString)")
             let rowId = try db.run(insert)
             print("Quote saved with ID: \(rowId)")
         } catch {
