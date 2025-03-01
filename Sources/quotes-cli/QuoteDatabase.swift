@@ -33,7 +33,8 @@ class QuoteDatabase {
                 print("Quotes table could not be created.")
             }
         } else {
-            print("CREATE TABLE statement could not be prepared.")
+            let errorMessage = String(cString: sqlite3_errmsg(db))
+            print("CREATE TABLE statement could not be prepared. Error: \(errorMessage)")
         }
         sqlite3_finalize(createTableStatement)
     }
@@ -51,10 +52,17 @@ class QuoteDatabase {
             if sqlite3_step(insertStatement) == SQLITE_DONE {
                 print("Successfully inserted quote.")
             } else {
-                print("Could not insert quote.")
+                let errorMessage = String(cString: sqlite3_errmsg(db))
+                print("Could not insert quote. Error: \(errorMessage)")
+                print("Failed Quote Text: \(quoteText)")
+                print("Failed Date String: \(dateString)")
             }
         } else {
-            print("INSERT statement could not be prepared.")
+            let errorMessage = String(cString: sqlite3_errmsg(db))
+            print("INSERT statement could not be prepared. Error: \(errorMessage)")
+            print("Insert Statement: \(insertStatementString)")
+            print("Quote Text: \(quoteText)")
+            print("Date String: \(dateString)")
         }
         sqlite3_finalize(insertStatement)
     }
