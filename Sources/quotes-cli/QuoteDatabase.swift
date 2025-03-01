@@ -1,13 +1,16 @@
 import Foundation
 import SQLite3
+import os
 
 class QuoteDatabase {
     private var db: OpaquePointer?
+    private let logger = Logger(subsystem: "com.yourapp.quotes-cli", category: "QuoteDatabase")
 
     init() {
         // Locate the quotes.db file in the current directory
         let path = FileManager.default.currentDirectoryPath + "/quotes.db"
         if sqlite3_open(path, &db) != SQLITE_OK {
+            logger.error("Unable to open database")
             fatalError("Unable to open database")
         }
         createTable()
@@ -17,7 +20,7 @@ class QuoteDatabase {
         let dropTableString = "DROP TABLE IF EXISTS quotes;"
         if sqlite3_exec(db, dropTableString, nil, nil, nil) != SQLITE_OK {
             let errorMessage = String(cString: sqlite3_errmsg(db))
-            print("DROP TABLE statement could not be executed. Error: \(errorMessage)")
+            logger.error("DROP TABLE statement could not be executed. Error: \(errorMessage)")
         }
 
         let createTableString = """
@@ -31,11 +34,11 @@ class QuoteDatabase {
         if sqlite3_prepare_v2(db, createTableString, -1, &createTableStatement, nil) == SQLITE_OK {
             if sqlite3_step(createTableStatement) != SQLITE_DONE {
                 let errorMessage = String(cString: sqlite3_errmsg(db))
-                print("Quotes table could not be created. Error: \(errorMessage)")
+                logger.error("Quotes table could not be created. Error: \(errorMessage)")
             }
         } else {
             let errorMessage = String(cString: sqlite3_errmsg(db))
-            print("CREATE TABLE statement could not be prepared. Error: \(errorMessage)")
+            logger.error("CREATE TABLE statement could not be prepared. Error: \(errorMessage)")
         }
         sqlite3_finalize(createTableStatement)
     }
@@ -54,11 +57,11 @@ class QuoteDatabase {
                 // Successfully inserted quote.
             } else {
                 let errorMessage = String(cString: sqlite3_errmsg(db))
-                print("Could not insert quote. Error: \(errorMessage)")
+                logger.error("Could not insert quote. Error: \(errorMessage)")
             }
         } else {
             let errorMessage = String(cString: sqlite3_errmsg(db))
-            print("INSERT statement could not be prepared. Error: \(errorMessage)")
+            logger.error("INSERT statement could not be prepared. Error: \(errorMessage)")
         }
         sqlite3_finalize(insertStatement)
     }
