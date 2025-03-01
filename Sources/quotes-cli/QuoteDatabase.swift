@@ -4,9 +4,9 @@ import SQLite
 class QuoteDatabase {
     private var db: Connection
     private let quotesTable = Table("quotes")
-    private let id = Expression<Int64>("id")
-    private let quote = Expression<String>("quote")
-    private let createdAt = Expression<String>("created_at") // Changed to String to handle Date serialization
+    private let id = Expression<Int64>(value: "id")
+    private let quote = Expression<String>(value: "quote")
+    private let createdAt = Expression<String>(value: "created_at") // Changed to String to handle Date serialization
 
     init() {
         do {
@@ -24,7 +24,7 @@ class QuoteDatabase {
             try db.run(quotesTable.create(ifNotExists: true) { table in
                 table.column(id, primaryKey: .autoincrement)
                 table.column(quote)
-                table.column(createdAt, defaultValue: ISO8601DateFormatter().string(from: Date()))
+                table.column(createdAt, defaultValue: Expression<String>(value: ISO8601DateFormatter().string(from: Date())))
             })
         } catch {
             throw error
