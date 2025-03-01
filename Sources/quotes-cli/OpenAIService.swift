@@ -18,7 +18,7 @@ struct OpenAIService {
         
         let prompt = "Provide a short, compelling quote that embodies the themes of \(theme). Keep it under 10 words. Only have one concept though, don't combine ideas"
         let jsonBody: [String: Any] = [
-            "model": "gpt-4",
+            "model": "gpt-4o",
             "messages": [
                 ["role": "user", "content": prompt]
             ]
