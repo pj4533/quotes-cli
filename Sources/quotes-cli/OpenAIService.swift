@@ -1,29 +1,14 @@
 import Foundation
 
-actor ResultHolder {
-    private var _value: String = ""
-    
-    func set(_ value: String) {
-        _value = value
-    }
-    
-    func get() -> String {
-        return _value
-    }
-}
-
 struct OpenAIService {
-    func fetchQuote(theme: String) throws -> String {
+    func fetchQuote(theme: String) async throws -> String {
         guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
             print("Error: OPENAI_API_KEY not set.")
-            return "Error: OPENAI_API_KEY not set."
+            throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: OPENAI_API_KEY not set."])
         }
         
-        let semaphore = DispatchSemaphore(value: 0)
-        let resultHolder = ResultHolder()
-        
         guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
-            return "Error: Invalid URL."
+            throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: Invalid URL."])
         }
         
         var request = URLRequest(url: url)
@@ -31,7 +16,7 @@ struct OpenAIService {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         
-        let prompt = "Provide a short, compelling quote that embodies the themes of \(theme). Keep it under 10 words. Only have one concept though, dont combine ideas"
+        let prompt = "Provide a short, compelling quote that embodies the themes of \(theme). Keep it under 10 words. Only have one concept though, don't combine ideas"
         let jsonBody: [String: Any] = [
             "model": "gpt-4",
             "messages": [
@@ -42,61 +27,32 @@ struct OpenAIService {
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: jsonBody, options: [])
         } catch {
-            return "Error: Failed to serialize JSON body."
+            throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: Failed to serialize JSON body."])
         }
         
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            defer { semaphore.signal() }
-            
-            if let error = error {
-                Task {
-                    await resultHolder.set("Error: \(error.localizedDescription)")
-                }
-                return
-            }
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
             
             guard let httpResponse = response as? HTTPURLResponse else {
-                Task {
-                    await resultHolder.set("Error: Invalid response.")
-                }
-                return
+                throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: Invalid response."])
             }
             
             guard (200...299).contains(httpResponse.statusCode) else {
-                Task {
-                    await resultHolder.set("Error: HTTP \(httpResponse.statusCode).")
-                }
-                return
+                throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: HTTP \(httpResponse.statusCode)."])
             }
             
-            guard let data = data else {
-                Task {
-                    await resultHolder.set("Error: No data received.")
-                }
-                return
+            guard let openAIResponse = try? JSONDecoder().decode(OpenAIResponse.self, from: data) else {
+                throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: Failed to parse JSON response."])
             }
             
-            do {
-                let openAIResponse = try JSONDecoder().decode(OpenAIResponse.self, from: data)
-                if let quote = openAIResponse.choices.first?.message.content.trimmingCharacters(in: .whitespacesAndNewlines) {
-                    Task {
-                        await resultHolder.set(quote.trimmingCharacters(in: CharacterSet(charactersIn: "\"")))
-                    }
-                } else {
-                    Task {
-                        await resultHolder.set("Error: No quote found in response.")
-                    }
-                }
-            } catch {
-                Task {
-                    await resultHolder.set("Error: Failed to parse JSON response.")
-                }
+            if let quote = openAIResponse.choices.first?.message.content.trimmingCharacters(in: .whitespacesAndNewlines) {
+                return quote.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+            } else {
+                throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: No quote found in response."])
             }
+        } catch {
+            throw error
         }
-        
-        task.resume()
-        semaphore.wait()
-        return Task { await resultHolder.get() }.value ?? "Error: Failed to retrieve result."
     }
 }
 

@@ -6,7 +6,7 @@ struct QuotesCommand: ParsableCommand {
     @Argument(help: "Theme for the quotes")
     var theme: String
 
-    func run() {
+    func run() async throws {
         do {
             let path = FileManager.default.currentDirectoryPath + "/.env"
             try DotEnv.load(path: path)
@@ -29,7 +29,7 @@ struct QuotesCommand: ParsableCommand {
         while true {
             CLIOutput.printLoading()
             do {
-                let quote = try service.fetchQuote(theme: theme)
+                let quote = try await service.fetchQuote(theme: theme)
                 print("\n\u{001B}[1m\u{001B}[37m\(quote)\u{001B}[0m\n")
                 let result = inputHandler.waitForArrowKey()
                 
