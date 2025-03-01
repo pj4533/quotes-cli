@@ -17,7 +17,6 @@ struct OpenAIService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        print("Using API Key: \(apiKey)")
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         
         let prompt = "Provide a short, compelling quote that embodies the themes of \(theme). Keep it under 20 words."
