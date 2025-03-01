@@ -22,7 +22,7 @@ class QuoteDatabase {
     func createTable() throws {
         do {
             try db.run(quotesTable.create(ifNotExists: true) { table in
-                table.column(id, primaryKey: .autoincrement)
+                table.column(id, primaryKey: true)
                 table.column(quote)
                 table.column(createdAt, defaultValue: Expression<String>(value: ISO8601DateFormatter().string(from: Date())))
             })
