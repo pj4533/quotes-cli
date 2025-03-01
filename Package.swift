@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "quotes-cli",
     platforms: [
-        .macOS(.v10_15)
+        .macOS(.v14)
     ],
     products: [
         .executable(
