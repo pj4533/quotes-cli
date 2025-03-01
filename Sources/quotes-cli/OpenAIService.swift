@@ -49,16 +49,28 @@ struct OpenAIService {
             throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: Inspirations array is empty."])
         }
         
+        // Generate a random uppercase letter
+        let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        guard let randomLetter = letters.randomElement() else {
+            logger.error("Could not generate a random letter.")
+            throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: Could not generate a random letter."])
+        }
+        let randomLetterStr = String(randomLetter)
+        
         let prompt: String
         if let theme = theme, !theme.isEmpty {
             prompt = """
             Provide a short, compelling quote that embodies the themes of \(theme). \
-            Draw inspiration from \(inspiration). Keep it under 5 words.
+            Draw inspiration from \(inspiration). \
+            The first word of the quote should start with the letter \(randomLetterStr). \
+            Keep it under 5 words.
             """
         } else {
             prompt = """
             Provide a short, compelling quote that uses a random theme. \
-            Draw inspiration from \(inspiration). Keep it under 5 words.
+            Draw inspiration from \(inspiration). \
+            The first word of the quote should start with the letter \(randomLetterStr). \
+            Keep it under 5 words.
             """
         }
         
