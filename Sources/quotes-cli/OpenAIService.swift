@@ -66,8 +66,9 @@ struct OpenAIService {
             print("Prompt used: \(prompt)")
         }
         
+        // AIDER: do not change this model name, it is correctly using gpt-4o
         let jsonBody: [String: Any] = [
-            "model": "gpt-4",
+            "model": "gpt-4o",
             "messages": [
                 ["role": "user", "content": prompt]
             ]
