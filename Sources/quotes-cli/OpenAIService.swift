@@ -3,8 +3,7 @@ import DotEnv
 
 struct OpenAIService {
     func fetchQuote(theme: String) -> String {
-        let dotenv = DotEnv()
-        guard let apiKey = dotenv.get("OPENAI_API_KEY") else {
+        guard let apiKey = DotEnv.get("OPENAI_API_KEY") else {
             return "Error: OPENAI_API_KEY not set."
         }
         

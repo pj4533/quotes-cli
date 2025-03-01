@@ -6,7 +6,7 @@ class QuoteDatabase {
     private let quotesTable = Table("quotes")
     private let id = Expression<Int64>(value: "id")
     private let quote = Expression<String>(value: "quote")
-    private let createdAt = Expression<Date>(value: "created_at")
+    private let createdAt = Expression<String>(value: "created_at") // Changed to String to handle Date serialization
     
     init() {
         do {
@@ -24,7 +24,7 @@ class QuoteDatabase {
             try db.run(quotesTable.create(ifNotExists: true) { table in
                 table.column(id, primaryKey: .autoincrement)
                 table.column(quote)
-                table.column(createdAt, defaultValue: Date())
+                table.column(createdAt, defaultValue: ISO8601DateFormatter().string(from: Date()))
             })
         } catch {
             throw error
@@ -32,7 +32,9 @@ class QuoteDatabase {
     }
     
     func saveQuote(_ quoteText: String) {
-        let insert = quotesTable.insert(quote <- quoteText, createdAt <- Date())
+        let dateFormatter = ISO8601DateFormatter()
+        let dateString = dateFormatter.string(from: Date())
+        let insert = quotesTable.insert(quote <- quoteText, createdAt <- dateString)
         do {
             let rowId = try db.run(insert)
             print("Quote saved with ID: \(rowId)")
