@@ -1,5 +1,22 @@
 import Foundation
 
+class ResultHolder {
+    private var _value: String = ""
+    private let queue = DispatchQueue(label: "resultHolderQueue")
+
+    func set(_ value: String) {
+        queue.sync {
+            _value = value
+        }
+    }
+
+    func get() -> String {
+        return queue.sync {
+            _value
+        }
+    }
+}
+
 struct OpenAIService {
     func fetchQuote(theme: String) throws -> String {
         guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
@@ -8,8 +25,7 @@ struct OpenAIService {
         }
         
         let semaphore = DispatchSemaphore(value: 0)
-        var result: String = ""
-        let resultQueue = DispatchQueue(label: "resultQueue")
+        let resultHolder = ResultHolder()
         
         guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
             return "Error: Invalid URL."
@@ -22,7 +38,7 @@ struct OpenAIService {
         
         let prompt = "Provide a short, compelling quote that embodies the themes of \(theme). Keep it under 10 words. Only have one concept though, dont combine ideas"
         let jsonBody: [String: Any] = [
-            "model": "gpt-4o",
+            "model": "gpt-4",
             "messages": [
                 ["role": "user", "content": prompt]
             ]
@@ -38,54 +54,40 @@ struct OpenAIService {
             defer { semaphore.signal() }
             
             if let error = error {
-                resultQueue.sync {
-                    result = "Error: \(error.localizedDescription)"
-                }
+                resultHolder.set("Error: \(error.localizedDescription)")
                 return
             }
             
             guard let httpResponse = response as? HTTPURLResponse else {
-                resultQueue.sync {
-                    result = "Error: Invalid response."
-                }
+                resultHolder.set("Error: Invalid response.")
                 return
             }
             
             guard (200...299).contains(httpResponse.statusCode) else {
-                resultQueue.sync {
-                    result = "Error: HTTP \(httpResponse.statusCode)."
-                }
+                resultHolder.set("Error: HTTP \(httpResponse.statusCode).")
                 return
             }
             
             guard let data = data else {
-                resultQueue.sync {
-                    result = "Error: No data received."
-                }
+                resultHolder.set("Error: No data received.")
                 return
             }
             
             do {
                 let openAIResponse = try JSONDecoder().decode(OpenAIResponse.self, from: data)
                 if let quote = openAIResponse.choices.first?.message.content.trimmingCharacters(in: .whitespacesAndNewlines) {
-                    resultQueue.sync {
-                        result = quote.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
-                    }
+                    resultHolder.set(quote.trimmingCharacters(in: CharacterSet(charactersIn: "\"")))
                 } else {
-                    resultQueue.sync {
-                        result = "Error: No quote found in response."
-                    }
+                    resultHolder.set("Error: No quote found in response.")
                 }
             } catch {
-                resultQueue.sync {
-                    result = "Error: Failed to parse JSON response."
-                }
+                resultHolder.set("Error: Failed to parse JSON response.")
             }
         }
         
         task.resume()
         semaphore.wait()
-        return result
+        return resultHolder.get()
     }
 }
 
