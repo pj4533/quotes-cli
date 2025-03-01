@@ -55,7 +55,7 @@ class QuoteDatabase {
             sqlite3_bind_text(insertStatement, 2, (dateString as NSString).utf8String, -1, nil)
             
             if sqlite3_step(insertStatement) == SQLITE_DONE {
-                print("Successfully inserted quote.")
+                // Successfully inserted quote.
             } else {
                 let errorMessage = String(cString: sqlite3_errmsg(db))
                 print("Could not insert quote. Error: \(errorMessage)")
