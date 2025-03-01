@@ -5,7 +5,7 @@ import DotEnv
 @main
 struct QuotesCommand: AsyncParsableCommand {
     @Argument(help: "Theme for the quotes")
-    var theme: String
+    var theme: String?
 
     func run() async throws {
         do {

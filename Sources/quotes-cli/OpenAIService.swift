@@ -1,7 +1,7 @@
 import Foundation
 
 struct OpenAIService {
-    func fetchQuote(theme: String) async throws -> String {
+    func fetchQuote(theme: String?) async throws -> String {
         guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
             print("Error: OPENAI_API_KEY not set.")
             throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: OPENAI_API_KEY not set."])
@@ -16,7 +16,13 @@ struct OpenAIService {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         
-        let prompt = "Provide a short, compelling quote that embodies the themes of \(theme). Keep it under 10 words. Only have one concept though, don't combine ideas"
+        let prompt: String
+        if let theme = theme, !theme.isEmpty {
+            prompt = "Provide a short, compelling quote that embodies the themes of \(theme). Keep it under 10 words. Only have one concept though, don't combine ideas"
+        } else {
+            prompt = "Provide a short, compelling quote that uses a random theme. Keep it under 10 words. Only have one concept though, don't combine ideas"
+        }
+        
         let jsonBody: [String: Any] = [
             "model": "gpt-4o",
             "messages": [
