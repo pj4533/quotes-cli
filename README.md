@@ -2,74 +2,46 @@
 
 ✨ **Welcome to Quotes CLI!** ✨
 
-**Quotes CLI** is a Swift-based command-line application that generates short, compelling AI-generated quotes based on user-defined themes. Leveraging OpenAI's GPT-4o via the Chat Completions API, Quotes CLI offers an interactive and seamless experience for users to discover and save inspiring quotes directly from their terminal.
-
-## Table of Contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Architecture](#architecture)
-- [Contributing](#contributing)
-- [License](#license)
+A simple Swift-based command-line tool that generates short, compelling AI-generated quotes based on an optional theme.
 
 ## Features
-
-- **AI-Generated Quotes:** Generate unique and inspiring quotes tailored to your chosen theme.
-- **Theme Flexibility:** Optionally specify a theme to guide the nature of the generated quotes.
-- **Randomized Inspiration:** Each quote draws inspiration from a randomly selected field (e.g., science, philosophy, nature) to enhance diversity.
-- **Random Letter Constraint:** The first word of each quote starts with a randomly selected letter, adding an extra layer of creativity.
-- **Interactive Controls:**
-  - **Right Arrow (👉):** Save the displayed quote to a local SQLite database.
-  - **Left Arrow (👈):** Discard the current quote and fetch a new one.
-- **Verbose Logging:** Use the `-v` or `--verbose` flag to enable verbose logging, which displays the prompt used to generate each quote.
-- **Styled Terminal Output:** Enjoy a visually appealing interface with ANSI colors and emojis.
-- **Continuous Operation:** The application runs continuously, fetching new quotes until you decide to exit with **Ctrl+C**.
-- **Local Storage:** Persist your favorite quotes in a local SQLite database (`quotes.db`) for future reference.
-
-## Installation
-
-### Prerequisites
-
-- **Swift 6.0 or Later:** Ensure you have Swift installed on your system. You can download it from [Swift.org](https://swift.org/download/).
-- **SQLite:** SQLite is required for local storage. It's typically pre-installed on macOS and Linux systems.
-- **Git:** To clone the repository. Download from [Git SCM](https://git-scm.com/downloads) if not already installed.
-
-### Steps
-
-1. **Clone the Repository:**
-
-   ```bash
-   git clone https://github.com/your-username/quotes-cli.git
-   cd quotes-cli
-   ```
-
-2. **Set Up Environment Variables:**
-
-   - Create a `.env` file in the root directory:
-
-     ```
-     OPENAI_API_KEY=your_openai_api_key_here
-     ```
-
-   - Replace `your_openai_api_key_here` with your actual OpenAI API key. You can obtain an API key by signing up on [OpenAI's website](https://openai.com/).
-
-3. **Build the Application:**
-
-   ```bash
-   swift build -c release
-   ```
-
-4. **Run the Application:**
-
-   ```bash
-   .build/release/quotes-cli "your_theme_here" [--verbose]
-   ```
-
-   - Replace `"your_theme_here"` with the theme you want the quotes to embody (e.g., `"happiness"`, `"motivation"`, `"nature"`).
-   - Use the `--verbose` flag if you want to see the prompts used for generating each quote.
+- **AI-Generated Quotes**: Fetch short quotes from OpenAI’s API, optionally guided by a user-supplied theme.
+- **Interactive Controls**: 
+  - **Left Arrow**: Discard the current quote and fetch a new one.
+  - **Right Arrow**: Save the displayed quote to a local SQLite database for later reference.
+  - **Ctrl+C**: Exit the application gracefully.
+- **Verbose Mode**: Use the `--verbose` flag to see additional logs, including the prompt sent to OpenAI.
+- **ANSI-Styled Output**: Enjoy colorized messages and emoji-based indicators in the terminal.
 
 ## Usage
+After cloning and building via Swift Package Manager (`swift build`), run the executable from your terminal:
 
-Once the application is running, you'll see the following welcome message:
+```
+USAGE: quotes-command [<theme>] [--verbose]
 
+ARGUMENTS:
+  <theme>                 Theme for the quotes
+
+OPTIONS:
+  -v, --verbose           Enable verbose logging.
+  -h, --help              Show help information.
+```
+
+1. **Press Right Arrow (→)** to save a quote to `quotes.db`.
+2. **Press Left Arrow (←)** to discard a quote and fetch another.
+3. **Press Ctrl+C** to exit at any time.
+
+## Getting Started
+1. **Set Up Environment**: Create a `.env` file with your OpenAI API key:
+   ```
+   OPENAI_API_KEY=your-openai-key
+   ```
+2. **Build and Run**:
+   ```bash
+   swift build
+   swift run quotes-cli "inspiration" --verbose
+   ```
+   Omit `"inspiration"` if you want a random theme.
+
+## License
+This project is available under the MIT license. Feel free to fork, modify, and share!
