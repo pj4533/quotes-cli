@@ -1,19 +1,14 @@
 import Foundation
 
-class ResultHolder {
+actor ResultHolder {
     private var _value: String = ""
-    private let queue = DispatchQueue(label: "resultHolderQueue")
-
+    
     func set(_ value: String) {
-        queue.sync {
-            _value = value
-        }
+        _value = value
     }
-
+    
     func get() -> String {
-        return queue.sync {
-            _value
-        }
+        return _value
     }
 }
 
@@ -54,40 +49,54 @@ struct OpenAIService {
             defer { semaphore.signal() }
             
             if let error = error {
-                resultHolder.set("Error: \(error.localizedDescription)")
+                Task {
+                    await resultHolder.set("Error: \(error.localizedDescription)")
+                }
                 return
             }
             
             guard let httpResponse = response as? HTTPURLResponse else {
-                resultHolder.set("Error: Invalid response.")
+                Task {
+                    await resultHolder.set("Error: Invalid response.")
+                }
                 return
             }
             
             guard (200...299).contains(httpResponse.statusCode) else {
-                resultHolder.set("Error: HTTP \(httpResponse.statusCode).")
+                Task {
+                    await resultHolder.set("Error: HTTP \(httpResponse.statusCode).")
+                }
                 return
             }
             
             guard let data = data else {
-                resultHolder.set("Error: No data received.")
+                Task {
+                    await resultHolder.set("Error: No data received.")
+                }
                 return
             }
             
             do {
                 let openAIResponse = try JSONDecoder().decode(OpenAIResponse.self, from: data)
                 if let quote = openAIResponse.choices.first?.message.content.trimmingCharacters(in: .whitespacesAndNewlines) {
-                    resultHolder.set(quote.trimmingCharacters(in: CharacterSet(charactersIn: "\"")))
+                    Task {
+                        await resultHolder.set(quote.trimmingCharacters(in: CharacterSet(charactersIn: "\"")))
+                    }
                 } else {
-                    resultHolder.set("Error: No quote found in response.")
+                    Task {
+                        await resultHolder.set("Error: No quote found in response.")
+                    }
                 }
             } catch {
-                resultHolder.set("Error: Failed to parse JSON response.")
+                Task {
+                    await resultHolder.set("Error: Failed to parse JSON response.")
+                }
             }
         }
         
         task.resume()
         semaphore.wait()
-        return resultHolder.get()
+        return Task { await resultHolder.get() }.value ?? "Error: Failed to retrieve result."
     }
 }
 
