@@ -4,9 +4,9 @@ import SQLite
 class QuoteDatabase {
     private var db: Connection
     private let quotesTable = Table("quotes")
-    private let id = Expression<Int64>("id")
-    private let quote = Expression<String>("quote")
-    private let createdAt = Expression<Date>("created_at")
+    private let id = Expression<Int64>(value: "id")
+    private let quote = Expression<String>(value: "quote")
+    private let createdAt = Expression<Date>(value: "created_at")
     
     init() {
         do {
