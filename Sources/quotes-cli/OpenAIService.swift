@@ -3,6 +3,7 @@ import Foundation
 struct OpenAIService {
     func fetchQuote(theme: String) throws -> String {
         guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
+            print("Error: OPENAI_API_KEY not set.")
             return "Error: OPENAI_API_KEY not set."
         }
         
@@ -16,6 +17,7 @@ struct OpenAIService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        print("Using API Key: \(apiKey)")
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         
         let prompt = "Provide a short, compelling quote that embodies the themes of \(theme). Keep it under 20 words."
