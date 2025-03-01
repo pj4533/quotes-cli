@@ -2,6 +2,7 @@ import Foundation
 import ArgumentParser
 import DotEnv
 
+@main
 struct QuotesCommand: AsyncParsableCommand {
     @Argument(help: "Theme for the quotes")
     var theme: String
