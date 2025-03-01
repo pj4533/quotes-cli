@@ -19,7 +19,7 @@ struct OpenAIService {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         
-        let prompt = "Provide a short, compelling quote that embodies the themes of \(theme). Keep it under 10 words."
+        let prompt = "Provide a short, compelling quote that embodies the themes of \(theme). Keep it under 10 words. Only have one concept though, dont combine ideas"
         let jsonBody: [String: Any] = [
             "model": "gpt-4o",
             "messages": [
