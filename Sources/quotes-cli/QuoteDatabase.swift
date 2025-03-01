@@ -12,7 +12,6 @@ class QuoteDatabase {
                 fatalError("Unable to open database")
             }
             createTable()
-            printTableInfo()
         } catch {
             fatalError("Unable to initialize database: \(error)")
         }
@@ -23,8 +22,6 @@ class QuoteDatabase {
         if sqlite3_exec(db, dropTableString, nil, nil, nil) != SQLITE_OK {
             let errorMessage = String(cString: sqlite3_errmsg(db))
             print("DROP TABLE statement could not be executed. Error: \(errorMessage)")
-        } else {
-            print("Existing quotes table dropped.")
         }
 
         let createTableString = """
@@ -36,41 +33,15 @@ class QuoteDatabase {
         """
         var createTableStatement: OpaquePointer?
         if sqlite3_prepare_v2(db, createTableString, -1, &createTableStatement, nil) == SQLITE_OK {
-            if sqlite3_step(createTableStatement) == SQLITE_DONE {
-                print("Quotes table created.")
-            } else {
-                print("Quotes table could not be created.")
+            if sqlite3_step(createTableStatement) != SQLITE_DONE {
+                let errorMessage = String(cString: sqlite3_errmsg(db))
+                print("Quotes table could not be created. Error: \(errorMessage)")
             }
         } else {
             let errorMessage = String(cString: sqlite3_errmsg(db))
             print("CREATE TABLE statement could not be prepared. Error: \(errorMessage)")
         }
         sqlite3_finalize(createTableStatement)
-    }
-
-    func printTableInfo() {
-        let tableInfoQuery = "PRAGMA table_info(quotes);"
-        var queryStatement: OpaquePointer?
-        if sqlite3_prepare_v2(db, tableInfoQuery, -1, &queryStatement, nil) == SQLITE_OK {
-            print("Current quotes table schema:")
-            while sqlite3_step(queryStatement) == SQLITE_ROW {
-                let cid = sqlite3_column_int(queryStatement, 0)
-                if let nameCStr = sqlite3_column_text(queryStatement, 1) {
-                    let name = String(cString: nameCStr)
-                    let typeCStr = sqlite3_column_text(queryStatement, 2)
-                    let type = typeCStr != nil ? String(cString: typeCStr!) : ""
-                    let notnull = sqlite3_column_int(queryStatement, 3)
-                    let dfltValueCStr = sqlite3_column_text(queryStatement, 4)
-                    let dfltValue = dfltValueCStr != nil ? String(cString: dfltValueCStr!) : "NULL"
-                    let pk = sqlite3_column_int(queryStatement, 5)
-                    print("cid: \(cid), name: \(name), type: \(type), notnull: \(notnull), dflt_value: \(dfltValue), pk: \(pk)")
-                }
-            }
-        } else {
-            let errorMessage = String(cString: sqlite3_errmsg(db))
-            print("Failed to retrieve table info. Error: \(errorMessage)")
-        }
-        sqlite3_finalize(queryStatement)
     }
 
     func saveQuote(_ quoteText: String) {
@@ -88,15 +59,10 @@ class QuoteDatabase {
             } else {
                 let errorMessage = String(cString: sqlite3_errmsg(db))
                 print("Could not insert quote. Error: \(errorMessage)")
-                print("Failed Quote Text: \(quoteText)")
-                print("Failed Date String: \(dateString)")
             }
         } else {
             let errorMessage = String(cString: sqlite3_errmsg(db))
             print("INSERT statement could not be prepared. Error: \(errorMessage)")
-            print("Insert Statement: \(insertStatementString)")
-            print("Quote Text: \(quoteText)")
-            print("Date String: \(dateString)")
         }
         sqlite3_finalize(insertStatement)
     }
