@@ -59,7 +59,7 @@ struct OpenAIService {
             do {
                 let openAIResponse = try JSONDecoder().decode(OpenAIResponse.self, from: data)
                 if let quote = openAIResponse.choices.first?.message.content.trimmingCharacters(in: .whitespacesAndNewlines) {
-                    result = quote
+                    result = quote.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
                 } else {
                     result = "Error: No quote found in response."
                 }
