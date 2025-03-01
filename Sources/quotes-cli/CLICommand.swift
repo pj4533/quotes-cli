@@ -1,7 +1,6 @@
 import Foundation
 import ArgumentParser
 import DotEnv
-import SQLite
 
 struct QuotesCommand: ParsableCommand {
     @Argument(help: "Theme for the quotes")
