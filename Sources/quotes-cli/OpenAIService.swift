@@ -27,6 +27,7 @@ struct OpenAIService {
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: jsonBody, options: [])
         } catch {
+            print("Error: Failed to serialize JSON body. \(error.localizedDescription)")
             throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: Failed to serialize JSON body."])
         }
         
@@ -34,23 +35,30 @@ struct OpenAIService {
             let (data, response) = try await URLSession.shared.data(for: request)
             
             guard let httpResponse = response as? HTTPURLResponse else {
+                print("Error: Invalid response type.")
                 throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: Invalid response."])
             }
             
             guard (200...299).contains(httpResponse.statusCode) else {
+                let responseBody = String(data: data, encoding: .utf8) ?? "No response body"
+                print("Error: Received HTTP \(httpResponse.statusCode). Response Body: \(responseBody)")
                 throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: HTTP \(httpResponse.statusCode)."])
             }
             
             guard let openAIResponse = try? JSONDecoder().decode(OpenAIResponse.self, from: data) else {
+                let responseBody = String(data: data, encoding: .utf8) ?? "No response body"
+                print("Error: Failed to parse JSON response. Response Body: \(responseBody)")
                 throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: Failed to parse JSON response."])
             }
             
             if let quote = openAIResponse.choices.first?.message.content.trimmingCharacters(in: .whitespacesAndNewlines) {
                 return quote.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
             } else {
+                print("Error: No quote found in response.")
                 throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: No quote found in response."])
             }
         } catch {
+            print("Error fetching quote: \(error.localizedDescription)")
             throw error
         }
     }
