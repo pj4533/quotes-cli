@@ -8,7 +8,7 @@ struct QuotesCommand: AsyncParsableCommand {
     @Argument(help: "Theme for the quotes")
     var theme: String?
     
-    @Option(name: [.short, .long], help: "Enable verbose logging.")
+    @Flag(name: [.short, .long], help: "Enable verbose logging.")
     var verbose: Bool = false
     
     private static let logger = Logger(subsystem: "com.yourapp.quotes-cli", category: "CLICommand")
