@@ -4,6 +4,29 @@ import os
 struct OpenAIService {
     private let logger = Logger(subsystem: "com.yourapp.quotes-cli", category: "OpenAIService")
     
+    private let inspirations = [
+        "science",
+        "philosophy",
+        "nature",
+        "history",
+        "mythology",
+        "technology",
+        "art",
+        "literature",
+        "music",
+        "psychology",
+        "astronomy",
+        "economics",
+        "engineering",
+        "spirituality",
+        "sociology",
+        "biology",
+        "geography",
+        "politics",
+        "architecture",
+        "medicine"
+    ]
+    
     func fetchQuote(theme: String?, verbose: Bool = false) async throws -> String {
         guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
             logger.error("OPENAI_API_KEY not set.")
@@ -20,11 +43,23 @@ struct OpenAIService {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         
+        // Select a random inspiration
+        guard let inspiration = inspirations.randomElement() else {
+            logger.error("Inspirations array is empty.")
+            throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: Inspirations array is empty."])
+        }
+        
         let prompt: String
         if let theme = theme, !theme.isEmpty {
-            prompt = "Provide a short, compelling quote that embodies the themes of \(theme). Keep it under 10 words. Only have one concept though, don't combine ideas"
+            prompt = """
+            Provide a short, compelling quote that embodies the themes of \(theme). \
+            Draw inspiration from \(inspiration). Keep it under 10 words. Only have one concept though, don't combine ideas.
+            """
         } else {
-            prompt = "Provide a short, compelling quote that uses a random theme. Keep it under 10 words. Only have one concept though, don't combine ideas"
+            prompt = """
+            Provide a short, compelling quote that uses a random theme. \
+            Draw inspiration from \(inspiration). Keep it under 10 words. Only have one concept though, don't combine ideas.
+            """
         }
         
         if verbose {
@@ -32,7 +67,7 @@ struct OpenAIService {
         }
         
         let jsonBody: [String: Any] = [
-            "model": "gpt-4o",
+            "model": "gpt-4",
             "messages": [
                 ["role": "user", "content": prompt]
             ]
