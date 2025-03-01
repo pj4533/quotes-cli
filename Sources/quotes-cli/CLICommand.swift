@@ -10,8 +10,7 @@ struct QuotesCommand: ParsableCommand {
     func run() {
         do {
             let path = FileManager.default.currentDirectoryPath + "/.env"
-            var env = try DotEnv.load(path: path)
-            env.load()
+            try DotEnv.load(path: path)
         } catch {
             print("Error: Failed to load .env file.")
             QuotesCommand.exit(withError: ExitCode(1))
