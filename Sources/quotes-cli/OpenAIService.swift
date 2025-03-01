@@ -9,6 +9,7 @@ struct OpenAIService {
         
         let semaphore = DispatchSemaphore(value: 0)
         var result: String = ""
+        let resultQueue = DispatchQueue(label: "resultQueue")
         
         guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
             return "Error: Invalid URL."
@@ -37,34 +38,48 @@ struct OpenAIService {
             defer { semaphore.signal() }
             
             if let error = error {
-                result = "Error: \(error.localizedDescription)"
+                resultQueue.sync {
+                    result = "Error: \(error.localizedDescription)"
+                }
                 return
             }
             
             guard let httpResponse = response as? HTTPURLResponse else {
-                result = "Error: Invalid response."
+                resultQueue.sync {
+                    result = "Error: Invalid response."
+                }
                 return
             }
             
             guard (200...299).contains(httpResponse.statusCode) else {
-                result = "Error: HTTP \(httpResponse.statusCode)."
+                resultQueue.sync {
+                    result = "Error: HTTP \(httpResponse.statusCode)."
+                }
                 return
             }
             
             guard let data = data else {
-                result = "Error: No data received."
+                resultQueue.sync {
+                    result = "Error: No data received."
+                }
                 return
             }
             
             do {
                 let openAIResponse = try JSONDecoder().decode(OpenAIResponse.self, from: data)
                 if let quote = openAIResponse.choices.first?.message.content.trimmingCharacters(in: .whitespacesAndNewlines) {
-                    result = quote.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+                    resultQueue.sync {
+                        result = quote.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+                    }
                 } else {
-                    result = "Error: No quote found in response."
+                    resultQueue.sync {
+                        result = "Error: No quote found in response."
+                    }
                 }
             } catch {
-                result = "Error: Failed to parse JSON response."
+                resultQueue.sync {
+                    result = "Error: Failed to parse JSON response."
+                }
             }
         }
         

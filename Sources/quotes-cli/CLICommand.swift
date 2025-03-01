@@ -15,7 +15,7 @@ struct QuotesCommand: ParsableCommand {
             QuotesCommand.exit(withError: ExitCode(1))
         }
         
-        guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
+        guard ProcessInfo.processInfo.environment["OPENAI_API_KEY"] != nil else {
             print("Error: OPENAI_API_KEY not set in .env file.")
             QuotesCommand.exit(withError: ExitCode(1))
         }

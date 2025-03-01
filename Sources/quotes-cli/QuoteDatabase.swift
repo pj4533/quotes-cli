@@ -5,16 +5,12 @@ class QuoteDatabase {
     private var db: OpaquePointer?
 
     init() {
-        do {
-            // Locate the quotes.db file in the current directory
-            let path = FileManager.default.currentDirectoryPath + "/quotes.db"
-            if sqlite3_open(path, &db) != SQLITE_OK {
-                fatalError("Unable to open database")
-            }
-            createTable()
-        } catch {
-            fatalError("Unable to initialize database: \(error)")
+        // Locate the quotes.db file in the current directory
+        let path = FileManager.default.currentDirectoryPath + "/quotes.db"
+        if sqlite3_open(path, &db) != SQLITE_OK {
+            fatalError("Unable to open database")
         }
+        createTable()
     }
 
     func createTable() {
