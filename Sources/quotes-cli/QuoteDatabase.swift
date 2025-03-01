@@ -14,8 +14,6 @@ class QuoteDatabase {
             createTable()
         } catch {
             fatalError("Unable to initialize database: \(error)")
-        }
-    }
 
     func createTable() {
         let createTableString = """
