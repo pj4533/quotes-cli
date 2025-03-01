@@ -53,12 +53,12 @@ struct OpenAIService {
         if let theme = theme, !theme.isEmpty {
             prompt = """
             Provide a short, compelling quote that embodies the themes of \(theme). \
-            Draw inspiration from \(inspiration). Keep it under 10 words. Only have one concept though, don't combine ideas.
+            Draw inspiration from \(inspiration). Keep it under 5 words.
             """
         } else {
             prompt = """
             Provide a short, compelling quote that uses a random theme. \
-            Draw inspiration from \(inspiration). Keep it under 10 words. Only have one concept though, don't combine ideas.
+            Draw inspiration from \(inspiration). Keep it under 5 words.
             """
         }
         
