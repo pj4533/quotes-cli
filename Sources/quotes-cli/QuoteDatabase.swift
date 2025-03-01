@@ -15,6 +15,7 @@ class QuoteDatabase {
         } catch {
             fatalError("Unable to initialize database: \(error)")
         }
+    }
 
     func createTable() {
         let createTableString = """
@@ -56,6 +57,5 @@ class QuoteDatabase {
             print("INSERT statement could not be prepared.")
         }
         sqlite3_finalize(insertStatement)
-        }
     }
 }
