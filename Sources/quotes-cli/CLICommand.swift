@@ -30,8 +30,13 @@ struct QuotesCommand: ParsableCommand {
         
         while true {
             CLIOutput.printLoading()
-            let quote = service.fetchQuote(theme: theme)
-            print("\nQuote: \(quote)\n")
+            do {
+                let quote = try service.fetchQuote(theme: theme)
+                print("\nQuote: \(quote)\n")
+            } catch {
+                print("Error fetching quote: \(error.localizedDescription)")
+                continue
+            }
             
             let result = inputHandler.waitForArrowKey()
             

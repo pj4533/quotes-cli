@@ -1,7 +1,7 @@
 import Foundation
 
 struct OpenAIService {
-    func fetchQuote(theme: String) -> String {
+    func fetchQuote(theme: String) throws -> String {
         guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
             return "Error: OPENAI_API_KEY not set."
         }
