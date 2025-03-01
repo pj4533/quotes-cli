@@ -35,7 +35,6 @@ class QuoteDatabase {
             print("CREATE TABLE statement could not be prepared.")
         }
         sqlite3_finalize(createTableStatement)
-        }
     }
 
     func saveQuote(_ quoteText: String) {
