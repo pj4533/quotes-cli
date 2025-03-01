@@ -8,6 +8,9 @@ struct QuotesCommand: AsyncParsableCommand {
     @Argument(help: "Theme for the quotes")
     var theme: String?
     
+    @Option(name: [.short, .long], help: "Enable verbose logging.")
+    var verbose: Bool = false
+    
     private static let logger = Logger(subsystem: "com.yourapp.quotes-cli", category: "CLICommand")
 
     func run() async throws {
@@ -33,7 +36,7 @@ struct QuotesCommand: AsyncParsableCommand {
         while true {
             CLIOutput.printLoading()
             do {
-                let quote = try await service.fetchQuote(theme: theme)
+                let quote = try await service.fetchQuote(theme: theme, verbose: verbose)
                 print("\n\u{001B}[1m\u{001B}[37m\(quote)\u{001B}[0m\n")
                 let result = inputHandler.waitForArrowKey()
                 
