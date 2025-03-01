@@ -1,3 +1,4 @@
+import Foundation
 import ArgumentParser
 import DotEnv
 import SQLite
@@ -6,18 +7,24 @@ struct QuotesCommand: ParsableCommand {
     @Argument(help: "Theme for the quotes")
     var theme: String
 
-    // Initialize QuoteDatabase
-    let quoteDatabase = QuoteDatabase()
-
     func run() {
-        DotEnv.load()
-        guard let apiKey = DotEnv.env["OPENAI_API_KEY"] else {
+        let dotenv = DotEnv()
+        do {
+            try dotenv.load()
+        } catch {
+            print("Error: Failed to load .env file.")
+            exit(1)
+        }
+        
+        guard let apiKey = dotenv.get("OPENAI_API_KEY") else {
             print("Error: OPENAI_API_KEY not set in .env file.")
             exit(1)
         }
+        
         CLIOutput.printWelcome()
         print("Theme received: \(theme)")
         
+        let quoteDatabase = QuoteDatabase()
         let service = OpenAIService()
         let inputHandler = UserInputHandler()
         
