@@ -59,7 +59,7 @@ struct QuotesCommand: AsyncParsableCommand {
         // Using the already defined serviceType
         Self.logger.notice("Using AI service: \(serviceType.rawValue)")
         
-        let aiService = AIServiceFactory.createService(type: serviceType)
+        var aiService = AIServiceFactory.createService(type: serviceType)
         let inputHandler = UserInputHandler()
         
         while true {
