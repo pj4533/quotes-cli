@@ -35,11 +35,23 @@ class QuoteGenerator {
         
         // If we have saved quotes, include them in the prompt
         if !savedQuotes.isEmpty {
-            let quotesString = savedQuotes.joined(separator: ", ")
             prompt += """
             
-            The user has previously liked these quotes: "\(quotesString)".
+            The user has previously liked these quotes:
+            """
+            
+            // Add each quote on a separate line with a number and clear formatting
+            for (index, quote) in savedQuotes.enumerated() {
+                prompt += """
+                
+                Quote #\(index + 1): "\(quote)"
+                """
+            }
+            
+            prompt += """
+            
             Generate a new, different quote that has a similar style or quality to these saved quotes.
+            The new quote should NOT be identical to any of the saved quotes.
             """
         }
         
