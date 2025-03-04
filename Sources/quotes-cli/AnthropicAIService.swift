@@ -111,41 +111,43 @@ struct AnthropicAIService: AIServiceProtocol {
             
             // Log all response headers to help debug rate limit issues
             logger.debug("Response status code: \(httpResponse.statusCode)")
-            logger.notice("--- Response Headers ---")
+            logger.debug("--- Response Headers ---")
             
-            // Print all headers to console for visibility
-            print("\n📋 Response Headers:")
-            for (key, value) in httpResponse.allHeaderFields {
-                let keyString = String(describing: key)
-                let valueString = String(describing: value)
-                logger.debug("\(keyString): \(valueString)")
-                print("  \(keyString): \(valueString)")
-            }
-            
-            // Check for Anthropic specific rate limit headers
-            let rateLimitHeaders = [
-                "x-ratelimit-limit",
-                "x-ratelimit-remaining",
-                "x-ratelimit-reset",
-                "retry-after"
-            ]
-            
-            print("\n⚠️ Rate Limit Information:")
-            var foundRateLimitHeaders = false
-            
-            for header in rateLimitHeaders {
-                if let value = httpResponse.allHeaderFields[header] {
+            // Only print headers in verbose mode
+            if verbose {
+                print("\n📋 Response Headers:")
+                for (key, value) in httpResponse.allHeaderFields {
+                    let keyString = String(describing: key)
                     let valueString = String(describing: value)
-                    logger.notice("\(header): \(valueString)")
-                    print("  \(header): \(valueString)")
-                    foundRateLimitHeaders = true
+                    logger.debug("\(keyString): \(valueString)")
+                    print("  \(keyString): \(valueString)")
                 }
+                
+                // Check for Anthropic specific rate limit headers
+                let rateLimitHeaders = [
+                    "x-ratelimit-limit",
+                    "x-ratelimit-remaining",
+                    "x-ratelimit-reset",
+                    "retry-after"
+                ]
+                
+                print("\n⚠️ Rate Limit Information:")
+                var foundRateLimitHeaders = false
+                
+                for header in rateLimitHeaders {
+                    if let value = httpResponse.allHeaderFields[header] {
+                        let valueString = String(describing: value)
+                        logger.notice("\(header): \(valueString)")
+                        print("  \(header): \(valueString)")
+                        foundRateLimitHeaders = true
+                    }
+                }
+                
+                if !foundRateLimitHeaders {
+                    print("  No specific rate limit headers found")
+                }
+                print("")
             }
-            
-            if !foundRateLimitHeaders {
-                print("  No specific rate limit headers found")
-            }
-            print("")
             
             // Log response body
             let responseBody = String(data: data, encoding: .utf8) ?? "No response body"
