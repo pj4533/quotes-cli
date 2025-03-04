@@ -39,7 +39,7 @@ class QuoteGenerator {
             print("Prompt used: \(prompt)")
         }
         
-        return (prompt, inspiration)
+        return (prompt, "")
     }
     
     /// Cleans a quote by removing whitespace and quotes
