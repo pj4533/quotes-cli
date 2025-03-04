@@ -1,6 +1,8 @@
 import Foundation
+import os
 
 struct CLIOutput {
+    private static let logger = Logger(subsystem: "com.yourapp.quotes-cli", category: "CLIOutput")
     static func printWelcome() {
         let welcomeMessage = "✨ Welcome to Quotes CLI! Press ➡️ to save, ⬅️ to discard. Ctrl+C to exit. ✨"
         let cyan = "\u{001B}[0;36m" // Cyan

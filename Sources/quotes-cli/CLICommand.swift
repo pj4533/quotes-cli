@@ -82,20 +82,22 @@ struct QuotesCommand: AsyncParsableCommand {
                         Self.logger.error("Error details: \(details)")
                     }
                 }
-                print("\n\u{001B}[1;31mError: \(error.localizedDescription)\u{001B}[0m")
+                Self.logger.error("Error: \(error.localizedDescription)")
                 
-                // Print more detailed error information
+                // Log more detailed error information
                 if let nsError = error as NSError? {
-                    print("\n\u{001B}[1;33mError Details:\u{001B}[0m")
-                    print("  Domain: \(nsError.domain)")
-                    print("  Code: \(nsError.code)")
+                    Self.logger.error("Error Details:")
+                    Self.logger.error("  Domain: \(nsError.domain)")
+                    Self.logger.error("  Code: \(nsError.code)")
                     
                     if let details = nsError.userInfo[NSLocalizedDescriptionKey] as? String {
-                        print("  Description: \(details)")
+                        Self.logger.error("  Description: \(details)")
                     }
                 }
-                print("")
-                print("Press any key to try again or Ctrl+C to exit...")
+                
+                // Still print the error for user visibility
+                print("\n\u{001B}[1;31mError: \(error.localizedDescription)\u{001B}[0m")
+                print("\nPress any key to try again or Ctrl+C to exit...")
                 _ = inputHandler.waitForArrowKey()
                 continue
             }
