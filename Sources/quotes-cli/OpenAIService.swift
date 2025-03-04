@@ -105,17 +105,17 @@ struct OpenAIService {
             logger.debug("Response status code: \(httpResponse.statusCode)")
             logger.debug("--- Response Headers ---")
             for (key, value) in httpResponse.allHeaderFields {
-                logger.debug("\(key): \(value)")
+                logger.debug("\(String(describing: key)): \(String(describing: value))")
             }
             
             // Log specific rate limit headers if they exist
-            if let rateLimit = httpResponse.allHeaderFields["x-ratelimit-limit"] {
+            if let rateLimit = httpResponse.allHeaderFields["x-ratelimit-limit"] as? String {
                 logger.notice("Rate Limit: \(rateLimit)")
             }
-            if let rateLimitRemaining = httpResponse.allHeaderFields["x-ratelimit-remaining"] {
+            if let rateLimitRemaining = httpResponse.allHeaderFields["x-ratelimit-remaining"] as? String {
                 logger.notice("Rate Limit Remaining: \(rateLimitRemaining)")
             }
-            if let rateLimitReset = httpResponse.allHeaderFields["x-ratelimit-reset"] {
+            if let rateLimitReset = httpResponse.allHeaderFields["x-ratelimit-reset"] as? String {
                 logger.notice("Rate Limit Reset: \(rateLimitReset)")
             }
             
