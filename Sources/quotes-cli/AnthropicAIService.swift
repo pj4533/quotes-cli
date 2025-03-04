@@ -43,7 +43,7 @@ struct AnthropicAIService: AIServiceProtocol {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue("anthropic-version: 2023-06-01", forHTTPHeaderField: "anthropic-version")
+        request.addValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
         request.addValue("\(apiKey)", forHTTPHeaderField: "x-api-key")
         
         // Select a random inspiration
