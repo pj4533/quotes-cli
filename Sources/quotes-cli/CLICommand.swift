@@ -29,9 +29,23 @@ struct QuotesCommand: AsyncParsableCommand {
             QuotesCommand.exit(withError: ExitCode(1))
         }
         
-        guard ProcessInfo.processInfo.environment["OPENAI_API_KEY"] != nil else {
-            Self.logger.error("OPENAI_API_KEY not set in .env file.")
-            QuotesCommand.exit(withError: ExitCode(1))
+        // Check for required API keys based on service type
+        let serviceType = AIServiceType.fromString(service)
+        if serviceType == .openAI {
+            guard ProcessInfo.processInfo.environment["OPENAI_API_KEY"] != nil else {
+                Self.logger.error("OPENAI_API_KEY not set in .env file.")
+                QuotesCommand.exit(withError: ExitCode(1))
+            }
+        } else if serviceType == .anthropic {
+            guard ProcessInfo.processInfo.environment["ANTHROPIC_API_KEY"] != nil else {
+                Self.logger.error("ANTHROPIC_API_KEY not set in .env file.")
+                QuotesCommand.exit(withError: ExitCode(1))
+            }
+        }
+        
+        if verbose {
+            print("Verbose mode enabled")
+            Self.logger.debug("Verbose mode enabled with log level: \(OSLog.Level.debug)")
         }
         
         CLIOutput.printWelcome()

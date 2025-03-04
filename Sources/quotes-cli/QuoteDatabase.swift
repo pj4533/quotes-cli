@@ -17,12 +17,21 @@ class QuoteDatabase {
     }
 
     func createTable() {
-        let dropTableString = "DROP TABLE IF EXISTS quotes;"
-        if sqlite3_exec(db, dropTableString, nil, nil, nil) != SQLITE_OK {
-            let errorMessage = String(cString: sqlite3_errmsg(db))
-            logger.error("DROP TABLE statement could not be executed. Error: \(errorMessage)")
+        // Check if the table already exists
+        var stmt: OpaquePointer?
+        let checkTableString = "SELECT name FROM sqlite_master WHERE type='table' AND name='quotes';"
+        
+        if sqlite3_prepare_v2(db, checkTableString, -1, &stmt, nil) == SQLITE_OK {
+            // If step returns SQLITE_ROW, the table exists
+            if sqlite3_step(stmt) == SQLITE_ROW {
+                logger.info("Quotes table already exists, skipping creation")
+                sqlite3_finalize(stmt)
+                return
+            }
+            sqlite3_finalize(stmt)
         }
-
+        
+        // Table doesn't exist, create it
         let createTableString = """
         CREATE TABLE IF NOT EXISTS quotes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
