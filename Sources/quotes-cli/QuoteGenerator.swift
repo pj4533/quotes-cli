@@ -5,42 +5,12 @@ import os
 class QuoteGenerator {
     private let logger = Logger(subsystem: "com.yourapp.quotes-cli", category: "QuoteGenerator")
     
-    // Shared inspirations across all services
-    private let inspirations = [
-        "science",
-        "philosophy",
-        "nature",
-        "history",
-        "mythology",
-        "technology",
-        "art",
-        "literature",
-        "music",
-        "psychology",
-        "astronomy",
-        "economics",
-        "engineering",
-        "spirituality",
-        "sociology",
-        "biology",
-        "geography",
-        "politics",
-        "architecture",
-        "medicine"
-    ]
-    
     /// Generates a prompt for the AI service
     /// - Parameters:
     ///   - theme: Optional theme for the quote
     ///   - verbose: Whether to print verbose output
-    /// - Returns: A tuple containing the prompt and the selected inspiration
+    /// - Returns: A tuple containing the prompt and an empty string (for backward compatibility)
     func generatePrompt(theme: String?, verbose: Bool) -> (prompt: String, inspiration: String) {
-        // Select a random inspiration
-        guard let inspiration = inspirations.randomElement() else {
-            logger.error("Inspirations array is empty.")
-            fatalError("Error: Inspirations array is empty.")
-        }
-        
         // Generate a random uppercase letter
         let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         guard let randomLetter = letters.randomElement() else {
@@ -53,14 +23,12 @@ class QuoteGenerator {
         if let theme = theme, !theme.isEmpty {
             prompt = """
             Provide a short, compelling quote that embodies the themes of \(theme). \
-            Draw inspiration from \(inspiration). \
             The first word of the quote should start with the letter \(randomLetterStr). \
             Keep it under 5 words.
             """
         } else {
             prompt = """
             Provide a short, compelling quote that uses a random theme. \
-            Draw inspiration from \(inspiration). \
             The first word of the quote should start with the letter \(randomLetterStr). \
             Keep it under 5 words.
             """
