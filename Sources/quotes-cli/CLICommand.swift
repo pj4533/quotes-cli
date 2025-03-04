@@ -45,7 +45,7 @@ struct QuotesCommand: AsyncParsableCommand {
         
         if verbose {
             print("Verbose mode enabled")
-            Self.logger.debug("Verbose mode enabled with log level: \(OSLog.Level.debug)")
+            Self.logger.debug("Verbose mode enabled")
         }
         
         CLIOutput.printWelcome()
@@ -56,8 +56,7 @@ struct QuotesCommand: AsyncParsableCommand {
             Self.logger.debug("Verbose logging enabled")
         }
         
-        // Determine which AI service to use
-        let serviceType = AIServiceType.fromString(service)
+        // Using the already defined serviceType
         Self.logger.notice("Using AI service: \(serviceType.rawValue)")
         
         let aiService = AIServiceFactory.createService(type: serviceType)
