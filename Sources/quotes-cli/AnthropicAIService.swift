@@ -33,7 +33,10 @@ struct AnthropicAIService: AIServiceProtocol {
         messageHistory.append(newMessage)
         
         if verbose {
-            print("\n📝 Sending with \(messageHistory.count) messages in history")
+            print("\n📝 Message history:")
+            for (index, message) in messageHistory.enumerated() {
+                print("  [\(index)] \(message["role"] ?? "unknown"): \(message["content"]?.prefix(50) ?? "")...")
+            }
         }
         
         let jsonBody: [String: Any] = [

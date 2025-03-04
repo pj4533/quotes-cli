@@ -32,7 +32,10 @@ struct OpenAIService: AIServiceProtocol {
         messageHistory.append(newMessage)
         
         if verbose {
-            print("\n📝 Sending with \(messageHistory.count) messages in history")
+            print("\n📝 Message history:")
+            for (index, message) in messageHistory.enumerated() {
+                print("  [\(index)] \(message["role"] ?? "unknown"): \(message["content"]?.prefix(50) ?? "")...")
+            }
         }
         
         // AIDER: do not change this model name, it is correctly using gpt-4o
