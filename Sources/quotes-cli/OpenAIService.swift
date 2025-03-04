@@ -101,8 +101,29 @@ struct OpenAIService {
                 throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: Invalid response."])
             }
             
+            // Log all response headers to help debug rate limit issues
+            logger.debug("Response status code: \(httpResponse.statusCode)")
+            logger.debug("--- Response Headers ---")
+            for (key, value) in httpResponse.allHeaderFields {
+                logger.debug("\(key): \(value)")
+            }
+            
+            // Log specific rate limit headers if they exist
+            if let rateLimit = httpResponse.allHeaderFields["x-ratelimit-limit"] {
+                logger.notice("Rate Limit: \(rateLimit)")
+            }
+            if let rateLimitRemaining = httpResponse.allHeaderFields["x-ratelimit-remaining"] {
+                logger.notice("Rate Limit Remaining: \(rateLimitRemaining)")
+            }
+            if let rateLimitReset = httpResponse.allHeaderFields["x-ratelimit-reset"] {
+                logger.notice("Rate Limit Reset: \(rateLimitReset)")
+            }
+            
+            // Log response body
+            let responseBody = String(data: data, encoding: .utf8) ?? "No response body"
+            logger.debug("--- Response Body ---\n\(responseBody)")
+            
             guard (200...299).contains(httpResponse.statusCode) else {
-                let responseBody = String(data: data, encoding: .utf8) ?? "No response body"
                 logger.error("Received HTTP \(httpResponse.statusCode). Response Body: \(responseBody)")
                 throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: HTTP \(httpResponse.statusCode)."])
             }

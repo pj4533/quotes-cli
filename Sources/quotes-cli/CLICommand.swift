@@ -30,6 +30,10 @@ struct QuotesCommand: AsyncParsableCommand {
         CLIOutput.printWelcome()
         
         let quoteDatabase = QuoteDatabase()
+        // Configure logger level based on verbose flag
+        if verbose {
+            Self.logger.debug("Verbose logging enabled")
+        }
         let service = OpenAIService()
         let inputHandler = UserInputHandler()
         
