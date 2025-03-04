@@ -11,25 +11,15 @@ class QuoteGenerator {
     ///   - verbose: Whether to print verbose output
     /// - Returns: A tuple containing the prompt and an empty string (for backward compatibility)
     func generatePrompt(theme: String?, verbose: Bool) -> (prompt: String, inspiration: String) {
-        // Generate a random uppercase letter
-        let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        guard let randomLetter = letters.randomElement() else {
-            logger.error("Could not generate a random letter.")
-            fatalError("Error: Could not generate a random letter.")
-        }
-        let randomLetterStr = String(randomLetter)
-        
         let prompt: String
         if let theme = theme, !theme.isEmpty {
             prompt = """
             Provide a short, compelling quote that embodies the themes of \(theme). \
-            The first word of the quote should start with the letter \(randomLetterStr). \
             Keep it under 5 words.
             """
         } else {
             prompt = """
             Provide a short, compelling quote that uses a random theme. \
-            The first word of the quote should start with the letter \(randomLetterStr). \
             Keep it under 5 words.
             """
         }
