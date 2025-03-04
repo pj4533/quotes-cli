@@ -105,18 +105,23 @@ struct OpenAIService {
             logger.debug("Response status code: \(httpResponse.statusCode)")
             logger.debug("--- Response Headers ---")
             for (key, value) in httpResponse.allHeaderFields {
-                logger.debug("\(String(describing: key)): \(String(describing: value))")
+                let keyString = String(describing: key)
+                let valueString = String(describing: value)
+                logger.debug("\(keyString): \(valueString)")
             }
             
             // Log specific rate limit headers if they exist
-            if let rateLimit = httpResponse.allHeaderFields["x-ratelimit-limit"] as? String {
-                logger.notice("Rate Limit: \(rateLimit)")
+            if let rateLimit = httpResponse.allHeaderFields["x-ratelimit-limit"] {
+                let rateLimitString = String(describing: rateLimit)
+                logger.notice("Rate Limit: \(rateLimitString)")
             }
-            if let rateLimitRemaining = httpResponse.allHeaderFields["x-ratelimit-remaining"] as? String {
-                logger.notice("Rate Limit Remaining: \(rateLimitRemaining)")
+            if let rateLimitRemaining = httpResponse.allHeaderFields["x-ratelimit-remaining"] {
+                let remainingString = String(describing: rateLimitRemaining)
+                logger.notice("Rate Limit Remaining: \(remainingString)")
             }
-            if let rateLimitReset = httpResponse.allHeaderFields["x-ratelimit-reset"] as? String {
-                logger.notice("Rate Limit Reset: \(rateLimitReset)")
+            if let rateLimitReset = httpResponse.allHeaderFields["x-ratelimit-reset"] {
+                let resetString = String(describing: rateLimitReset)
+                logger.notice("Rate Limit Reset: \(resetString)")
             }
             
             // Log response body
