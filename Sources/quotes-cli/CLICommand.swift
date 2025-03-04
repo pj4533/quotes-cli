@@ -14,11 +14,15 @@ struct QuotesCommand: AsyncParsableCommand {
     private static let logger = Logger(subsystem: "com.yourapp.quotes-cli", category: "CLICommand")
 
     func run() async throws {
+        Self.logger.notice("🚀 Starting quotes-cli application")
+        
         do {
             let path = FileManager.default.currentDirectoryPath + "/.env"
+            Self.logger.debug("Loading .env file from: \(path)")
             try DotEnv.load(path: path)
+            Self.logger.debug("Successfully loaded .env file")
         } catch {
-            Self.logger.error("Failed to load .env file: \(error.localizedDescription)")
+            Self.logger.error("❌ Failed to load .env file: \(error.localizedDescription)")
             QuotesCommand.exit(withError: ExitCode(1))
         }
         
@@ -40,9 +44,13 @@ struct QuotesCommand: AsyncParsableCommand {
         while true {
             CLIOutput.printLoading()
             do {
+                Self.logger.notice("🔄 Fetching new quote")
                 let quote = try await service.fetchQuote(theme: theme, verbose: verbose)
                 print("\n\u{001B}[1m\u{001B}[37m\(quote)\u{001B}[0m\n")
+                
+                Self.logger.debug("Waiting for user input")
                 let result = inputHandler.waitForArrowKey()
+                Self.logger.debug("Received user input: \(result ?? "nil")")
                 
                 switch result {
                 case "LEFT":
@@ -59,8 +67,17 @@ struct QuotesCommand: AsyncParsableCommand {
                     QuotesCommand.exit(withError: ExitCode(0))
                 }
             } catch {
-                Self.logger.error("Error fetching quote: \(error.localizedDescription)")
-                QuotesCommand.exit(withError: ExitCode(0))
+                Self.logger.error("❌ Error fetching quote: \(error.localizedDescription)")
+                if let nsError = error as NSError? {
+                    Self.logger.error("Error domain: \(nsError.domain), code: \(nsError.code)")
+                    if let details = nsError.userInfo[NSLocalizedDescriptionKey] as? String {
+                        Self.logger.error("Error details: \(details)")
+                    }
+                }
+                print("\n\u{001B}[1;31mError: \(error.localizedDescription)\u{001B}[0m\n")
+                print("Press any key to try again or Ctrl+C to exit...")
+                _ = inputHandler.waitForArrowKey()
+                continue
             }
         }
     }

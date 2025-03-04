@@ -28,10 +28,12 @@ struct OpenAIService {
     ]
     
     func fetchQuote(theme: String?, verbose: Bool = false) async throws -> String {
+        logger.notice("🔍 Starting quote fetch process")
         guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
             logger.error("OPENAI_API_KEY not set.")
             throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: OPENAI_API_KEY not set."])
         }
+        logger.debug("API key found")
         
         guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
             logger.error("Invalid URL.")
@@ -93,8 +95,13 @@ struct OpenAIService {
             throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: Failed to serialize JSON body."])
         }
         
+        logger.notice("🌐 Sending request to OpenAI API")
         do {
+            logger.debug("Request URL: \(url.absoluteString)")
+            logger.debug("Request body: \(String(data: request.httpBody ?? Data(), encoding: .utf8) ?? "None")")
+            
             let (data, response) = try await URLSession.shared.data(for: request)
+            logger.notice("📥 Received response from OpenAI API")
             
             guard let httpResponse = response as? HTTPURLResponse else {
                 logger.error("Invalid response type.")
@@ -129,24 +136,36 @@ struct OpenAIService {
             logger.debug("--- Response Body ---\n\(responseBody)")
             
             guard (200...299).contains(httpResponse.statusCode) else {
-                logger.error("Received HTTP \(httpResponse.statusCode). Response Body: \(responseBody)")
-                throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: HTTP \(httpResponse.statusCode)."])
+                logger.error("❌ Received HTTP \(httpResponse.statusCode). Response Body: \(responseBody)")
+                throw NSError(domain: "OpenAIService", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Error: HTTP \(httpResponse.statusCode). \(responseBody)"])
             }
             
-            guard let openAIResponse = try? JSONDecoder().decode(OpenAIResponse.self, from: data) else {
+            do {
+                let openAIResponse = try JSONDecoder().decode(OpenAIResponse.self, from: data)
+                logger.debug("Successfully decoded OpenAI response")
+                
+                if let quote = openAIResponse.choices.first?.message.content.trimmingCharacters(in: .whitespacesAndNewlines) {
+                    let cleanedQuote = quote.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+                    logger.notice("✅ Successfully retrieved quote: \(cleanedQuote)")
+                    return cleanedQuote
+                } else {
+                    logger.error("❌ No quote found in response")
+                    throw NSError(domain: "OpenAIService", code: 2, userInfo: [NSLocalizedDescriptionKey: "Error: No quote found in response."])
+                }
+            } catch {
                 let responseBody = String(data: data, encoding: .utf8) ?? "No response body"
-                logger.error("Failed to parse JSON response. Response Body: \(responseBody)")
-                throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: Failed to parse JSON response."])
+                logger.error("❌ Failed to parse JSON response: \(error.localizedDescription). Response Body: \(responseBody)")
+                throw NSError(domain: "OpenAIService", code: 3, userInfo: [NSLocalizedDescriptionKey: "Error: Failed to parse JSON response. \(error.localizedDescription)"])
             }
             
-            if let quote = openAIResponse.choices.first?.message.content.trimmingCharacters(in: .whitespacesAndNewlines) {
-                return quote.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
-            } else {
-                logger.error("No quote found in response.")
-                throw NSError(domain: "", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: No quote found in response."])
-            }
         } catch {
-            logger.error("Error fetching quote: \(error.localizedDescription)")
+            logger.error("❌ Error fetching quote: \(error.localizedDescription)")
+            if let nsError = error as NSError? {
+                logger.error("Error domain: \(nsError.domain), code: \(nsError.code)")
+                if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? Error {
+                    logger.error("Underlying error: \(underlyingError)")
+                }
+            }
             throw error
         }
     }
