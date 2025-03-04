@@ -15,7 +15,7 @@ enum AIServiceType: String, CaseIterable {
 }
 
 protocol AIServiceProtocol {
-    func fetchQuote(theme: String?, verbose: Bool) async throws -> String
+    mutating func fetchQuote(theme: String?, verbose: Bool) async throws -> String
 }
 
 struct AIServiceFactory {

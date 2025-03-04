@@ -6,7 +6,7 @@ struct OpenAIService: AIServiceProtocol {
     private let quoteGenerator = QuoteGenerator()
     private var messageHistory: [[String: String]] = []
     
-    func fetchQuote(theme: String?, verbose: Bool = false) async throws -> String {
+    mutating func fetchQuote(theme: String?, verbose: Bool = false) async throws -> String {
         logger.notice("🔍 Starting quote fetch process")
         guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
             logger.error("OPENAI_API_KEY not set.")
