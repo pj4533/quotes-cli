@@ -4,6 +4,7 @@ import os
 struct AnthropicAIService: AIServiceProtocol {
     private let logger = Logger(subsystem: "com.yourapp.quotes-cli", category: "AnthropicAIService")
     private let quoteGenerator = QuoteGenerator()
+    private var messageHistory: [[String: String]] = []
     
     func fetchQuote(theme: String?, verbose: Bool = false) async throws -> String {
         logger.notice("🔍 Starting quote fetch process with Anthropic")
@@ -27,12 +28,18 @@ struct AnthropicAIService: AIServiceProtocol {
         // Generate prompt using the shared generator
         let (prompt, _) = quoteGenerator.generatePrompt(theme: theme, verbose: verbose)
         
+        // Add the new prompt to message history
+        let newMessage = ["role": "user", "content": prompt]
+        messageHistory.append(newMessage)
+        
+        if verbose {
+            print("\n📝 Sending with \(messageHistory.count) messages in history")
+        }
+        
         let jsonBody: [String: Any] = [
             "model": "claude-3-haiku-20240307",
             "max_tokens": 100,
-            "messages": [
-                ["role": "user", "content": prompt]
-            ]
+            "messages": messageHistory
         ]
         
         do {
@@ -92,7 +99,14 @@ struct AnthropicAIService: AIServiceProtocol {
                 
                 if let content = anthropicResponse.content.first?.text {
                     let cleanedQuote = quoteGenerator.cleanQuote(content)
+                    
+                    // Add the assistant's response to message history
+                    messageHistory.append(["role": "assistant", "content": content])
+                    
                     logger.notice("✅ Successfully retrieved quote: \(cleanedQuote)")
+                    if verbose {
+                        print("📚 Message history now contains \(messageHistory.count) messages")
+                    }
                     return cleanedQuote
                 } else {
                     logger.error("❌ No quote found in response")

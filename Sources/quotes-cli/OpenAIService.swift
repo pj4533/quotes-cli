@@ -4,6 +4,7 @@ import os
 struct OpenAIService: AIServiceProtocol {
     private let logger = Logger(subsystem: "com.yourapp.quotes-cli", category: "OpenAIService")
     private let quoteGenerator = QuoteGenerator()
+    private var messageHistory: [[String: String]] = []
     
     func fetchQuote(theme: String?, verbose: Bool = false) async throws -> String {
         logger.notice("🔍 Starting quote fetch process")
@@ -26,12 +27,18 @@ struct OpenAIService: AIServiceProtocol {
         // Generate prompt using the shared generator
         let (prompt, _) = quoteGenerator.generatePrompt(theme: theme, verbose: verbose)
         
+        // Add the new prompt to message history
+        let newMessage = ["role": "user", "content": prompt]
+        messageHistory.append(newMessage)
+        
+        if verbose {
+            print("\n📝 Sending with \(messageHistory.count) messages in history")
+        }
+        
         // AIDER: do not change this model name, it is correctly using gpt-4o
         let jsonBody: [String: Any] = [
             "model": "gpt-4o",
-            "messages": [
-                ["role": "user", "content": prompt]
-            ]
+            "messages": messageHistory
         ]
         
         do {
@@ -96,7 +103,14 @@ struct OpenAIService: AIServiceProtocol {
                 
                 if let quote = openAIResponse.choices.first?.message.content {
                     let cleanedQuote = quoteGenerator.cleanQuote(quote)
+                    
+                    // Add the assistant's response to message history
+                    messageHistory.append(["role": "assistant", "content": quote])
+                    
                     logger.notice("✅ Successfully retrieved quote: \(cleanedQuote)")
+                    if verbose {
+                        print("📚 Message history now contains \(messageHistory.count) messages")
+                    }
                     return cleanedQuote
                 } else {
                     logger.error("❌ No quote found in response")
