@@ -8,6 +8,9 @@ struct QuotesCommand: AsyncParsableCommand {
     @Argument(help: "Theme for the quotes")
     var theme: String?
     
+    @Option(name: .shortAndLong, help: "AI service to use (openai or anthropic)")
+    var service: String?
+    
     @Flag(name: [.short, .long], help: "Enable verbose logging.")
     var verbose: Bool = false
     
@@ -38,14 +41,19 @@ struct QuotesCommand: AsyncParsableCommand {
         if verbose {
             Self.logger.debug("Verbose logging enabled")
         }
-        let service = OpenAIService()
+        
+        // Determine which AI service to use
+        let serviceType = AIServiceType.fromString(service)
+        Self.logger.notice("Using AI service: \(serviceType.rawValue)")
+        
+        let aiService = AIServiceFactory.createService(type: serviceType)
         let inputHandler = UserInputHandler()
         
         while true {
             CLIOutput.printLoading()
             do {
                 Self.logger.notice("🔄 Fetching new quote")
-                let quote = try await service.fetchQuote(theme: theme, verbose: verbose)
+                let quote = try await aiService.fetchQuote(theme: theme, verbose: verbose)
                 print("\n\u{001B}[1m\u{001B}[37m\(quote)\u{001B}[0m\n")
                 
                 Self.logger.debug("Waiting for user input")
