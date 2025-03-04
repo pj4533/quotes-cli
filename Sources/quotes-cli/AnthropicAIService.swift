@@ -35,7 +35,7 @@ struct AnthropicAIService: AIServiceProtocol {
         if verbose {
             print("\n📝 Message history:")
             for (index, message) in messageHistory.enumerated() {
-                print("  [\(index)] \(message["role"] ?? "unknown"): \(message["content"]?.prefix(50) ?? "")...")
+                print("  [\(index)] \(message["role"] ?? "unknown"): \(message["content"] ?? "")")
             }
         }
         
