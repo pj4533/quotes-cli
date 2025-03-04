@@ -3,8 +3,12 @@ import os
 
 struct OpenAIService: AIServiceProtocol {
     private let logger = Logger(subsystem: "com.yourapp.quotes-cli", category: "OpenAIService")
-    private let quoteGenerator = QuoteGenerator()
+    private var quoteGenerator: QuoteGenerator
     private var messageHistory: [[String: String]] = []
+    
+    init(quoteGenerator: QuoteGenerator = QuoteGenerator()) {
+        self.quoteGenerator = quoteGenerator
+    }
     
     mutating func fetchQuote(theme: String?, verbose: Bool = false) async throws -> String {
         logger.notice("🔍 Starting quote fetch process")

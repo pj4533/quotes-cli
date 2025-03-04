@@ -59,7 +59,8 @@ struct QuotesCommand: AsyncParsableCommand {
         // Using the already defined serviceType
         Self.logger.notice("Using AI service: \(serviceType.rawValue)")
         
-        var aiService = AIServiceFactory.createService(type: serviceType)
+        let quoteGenerator = QuoteGenerator()
+        var aiService = AIServiceFactory.createService(type: serviceType, quoteGenerator: quoteGenerator)
         let inputHandler = UserInputHandler()
         
         while true {
@@ -79,6 +80,7 @@ struct QuotesCommand: AsyncParsableCommand {
                     continue
                 case "RIGHT":
                     quoteDatabase.saveQuote(quote)
+                    quoteGenerator.saveQuote(quote)
                     CLIOutput.printSuccess()
                 case "EXIT":
                     CLIOutput.printExit()

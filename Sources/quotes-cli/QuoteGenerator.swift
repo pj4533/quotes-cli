@@ -4,6 +4,14 @@ import os
 /// Shared logic for generating quotes across different AI services
 class QuoteGenerator {
     private let logger = Logger(subsystem: "com.yourapp.quotes-cli", category: "QuoteGenerator")
+    private var savedQuotes: [String] = []
+    
+    /// Adds a quote to the saved quotes collection
+    /// - Parameter quote: The quote to save
+    func saveQuote(_ quote: String) {
+        savedQuotes.append(quote)
+        logger.debug("Added quote to saved collection: \(quote)")
+    }
     
     /// Generates a prompt for the AI service
     /// - Parameters:
@@ -11,7 +19,8 @@ class QuoteGenerator {
     ///   - verbose: Whether to print verbose output
     /// - Returns: A tuple containing the prompt and an empty string (for backward compatibility)
     func generatePrompt(theme: String?, verbose: Bool) -> (prompt: String, inspiration: String) {
-        let prompt: String
+        var prompt: String
+        
         if let theme = theme, !theme.isEmpty {
             prompt = """
             Provide a short, compelling quote that embodies the themes of \(theme). \
@@ -21,6 +30,16 @@ class QuoteGenerator {
             prompt = """
             Provide a short, compelling quote that uses a random theme. \
             Keep it under 5 words.
+            """
+        }
+        
+        // If we have saved quotes, include them in the prompt
+        if !savedQuotes.isEmpty {
+            let quotesString = savedQuotes.joined(separator: ", ")
+            prompt += """
+            
+            The user has previously liked these quotes: "\(quotesString)".
+            Generate a new, different quote that has a similar style or quality to these saved quotes.
             """
         }
         

@@ -19,12 +19,12 @@ protocol AIServiceProtocol {
 }
 
 struct AIServiceFactory {
-    static func createService(type: AIServiceType) -> AIServiceProtocol {
+    static func createService(type: AIServiceType, quoteGenerator: QuoteGenerator = QuoteGenerator()) -> AIServiceProtocol {
         switch type {
         case .openAI:
-            return OpenAIService()
+            return OpenAIService(quoteGenerator: quoteGenerator)
         case .anthropic:
-            return AnthropicAIService()
+            return AnthropicAIService(quoteGenerator: quoteGenerator)
         }
     }
 }
