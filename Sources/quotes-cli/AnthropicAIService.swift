@@ -74,6 +74,13 @@ struct AnthropicAIService: AIServiceProtocol {
             let responseBody = String(data: data, encoding: .utf8) ?? "No response body"
             logger.debug("--- Response Body ---\n\(responseBody)")
             
+            if verbose {
+                print("\n📄 Response Body (truncated):")
+                let truncatedBody = responseBody.count > 500 ? responseBody.prefix(500) + "..." : responseBody
+                print(truncatedBody)
+                print("")
+            }
+            
             guard (200...299).contains(httpResponse.statusCode) else {
                 logger.error("❌ Received HTTP \(httpResponse.statusCode). Response Body: \(responseBody)")
                 throw NSError(domain: "AnthropicAIService", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Error: HTTP \(httpResponse.statusCode). \(responseBody)"])

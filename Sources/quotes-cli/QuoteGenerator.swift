@@ -68,6 +68,7 @@ class QuoteGenerator {
         
         if verbose {
             logger.debug("Prompt used: \(prompt)")
+            print("Prompt used: \(prompt)")
         }
         
         return (prompt, inspiration)
@@ -99,26 +100,33 @@ class QuoteGenerator {
         // Only print headers in verbose mode
         if verbose {
             logger.info("📋 Response Headers:")
+            print("\n📋 Response Headers:")
+            
             for (key, value) in httpResponse.allHeaderFields {
                 let keyString = String(describing: key)
                 let valueString = String(describing: value)
                 logger.debug("\(keyString): \(valueString)")
+                print("  \(keyString): \(valueString)")
             }
             
             logger.info("⚠️ Rate Limit Information:")
+            print("\n⚠️ Rate Limit Information:")
             var foundRateLimitHeaders = false
             
             for header in rateLimitHeaders {
                 if let value = httpResponse.allHeaderFields[header] {
                     let valueString = String(describing: value)
                     logger.notice("\(header): \(valueString)")
+                    print("  \(header): \(valueString)")
                     foundRateLimitHeaders = true
                 }
             }
             
             if !foundRateLimitHeaders {
                 logger.info("No specific rate limit headers found")
+                print("  No specific rate limit headers found")
             }
+            print("")
         }
     }
 }
