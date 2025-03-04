@@ -50,8 +50,8 @@ class QuoteGenerator {
             
             prompt += """
             
-            Generate a new, different quote that has a similar style or quality to these saved quotes.
-            The new quote should NOT be identical to any of the saved quotes.
+            Generate a new, different quote that has a similar style or quality to these liked quotes.
+            The new quote should NOT be identical to any of the liked quotes.
             """
         }
         
