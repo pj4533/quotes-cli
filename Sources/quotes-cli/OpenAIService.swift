@@ -110,26 +110,46 @@ struct OpenAIService {
             
             // Log all response headers to help debug rate limit issues
             logger.debug("Response status code: \(httpResponse.statusCode)")
-            logger.debug("--- Response Headers ---")
+            logger.notice("--- Response Headers ---")
+            
+            // Print all headers to console for visibility
+            print("\n📋 Response Headers:")
             for (key, value) in httpResponse.allHeaderFields {
                 let keyString = String(describing: key)
                 let valueString = String(describing: value)
                 logger.debug("\(keyString): \(valueString)")
+                print("  \(keyString): \(valueString)")
             }
             
-            // Log specific rate limit headers if they exist
-            if let rateLimit = httpResponse.allHeaderFields["x-ratelimit-limit"] {
-                let rateLimitString = String(describing: rateLimit)
-                logger.notice("Rate Limit: \(rateLimitString)")
+            // Check for OpenAI specific rate limit headers
+            let rateLimitHeaders = [
+                "x-ratelimit-limit-requests",
+                "x-ratelimit-limit-tokens",
+                "x-ratelimit-remaining-requests",
+                "x-ratelimit-remaining-tokens",
+                "x-ratelimit-reset-requests",
+                "x-ratelimit-reset-tokens",
+                "ratelimit-limit",
+                "ratelimit-remaining",
+                "ratelimit-reset"
+            ]
+            
+            print("\n⚠️ Rate Limit Information:")
+            var foundRateLimitHeaders = false
+            
+            for header in rateLimitHeaders {
+                if let value = httpResponse.allHeaderFields[header] {
+                    let valueString = String(describing: value)
+                    logger.notice("\(header): \(valueString)")
+                    print("  \(header): \(valueString)")
+                    foundRateLimitHeaders = true
+                }
             }
-            if let rateLimitRemaining = httpResponse.allHeaderFields["x-ratelimit-remaining"] {
-                let remainingString = String(describing: rateLimitRemaining)
-                logger.notice("Rate Limit Remaining: \(remainingString)")
+            
+            if !foundRateLimitHeaders {
+                print("  No specific rate limit headers found")
             }
-            if let rateLimitReset = httpResponse.allHeaderFields["x-ratelimit-reset"] {
-                let resetString = String(describing: rateLimitReset)
-                logger.notice("Rate Limit Reset: \(resetString)")
-            }
+            print("")
             
             // Log response body
             let responseBody = String(data: data, encoding: .utf8) ?? "No response body"
