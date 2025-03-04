@@ -3,29 +3,7 @@ import os
 
 struct AnthropicAIService: AIServiceProtocol {
     private let logger = Logger(subsystem: "com.yourapp.quotes-cli", category: "AnthropicAIService")
-    
-    private let inspirations = [
-        "science",
-        "philosophy",
-        "nature",
-        "history",
-        "mythology",
-        "technology",
-        "art",
-        "literature",
-        "music",
-        "psychology",
-        "astronomy",
-        "economics",
-        "engineering",
-        "spirituality",
-        "sociology",
-        "biology",
-        "geography",
-        "politics",
-        "architecture",
-        "medicine"
-    ]
+    private let quoteGenerator = QuoteGenerator()
     
     func fetchQuote(theme: String?, verbose: Bool = false) async throws -> String {
         logger.notice("🔍 Starting quote fetch process with Anthropic")
@@ -46,40 +24,8 @@ struct AnthropicAIService: AIServiceProtocol {
         request.addValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
         request.addValue("\(apiKey)", forHTTPHeaderField: "x-api-key")
         
-        // Select a random inspiration
-        guard let inspiration = inspirations.randomElement() else {
-            logger.error("Inspirations array is empty.")
-            throw NSError(domain: "AnthropicAIService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: Inspirations array is empty."])
-        }
-        
-        // Generate a random uppercase letter
-        let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        guard let randomLetter = letters.randomElement() else {
-            logger.error("Could not generate a random letter.")
-            throw NSError(domain: "AnthropicAIService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: Could not generate a random letter."])
-        }
-        let randomLetterStr = String(randomLetter)
-        
-        let prompt: String
-        if let theme = theme, !theme.isEmpty {
-            prompt = """
-            Provide a short, compelling quote that embodies the themes of \(theme). \
-            Draw inspiration from \(inspiration). \
-            The first word of the quote should start with the letter \(randomLetterStr). \
-            Keep it under 5 words.
-            """
-        } else {
-            prompt = """
-            Provide a short, compelling quote that uses a random theme. \
-            Draw inspiration from \(inspiration). \
-            The first word of the quote should start with the letter \(randomLetterStr). \
-            Keep it under 5 words.
-            """
-        }
-        
-        if verbose {
-            print("Prompt used: \(prompt)")
-        }
+        // Generate prompt using the shared generator
+        let (prompt, _) = quoteGenerator.generatePrompt(theme: theme, verbose: verbose)
         
         let jsonBody: [String: Any] = [
             "model": "claude-3-haiku-20240307",
@@ -109,45 +55,20 @@ struct AnthropicAIService: AIServiceProtocol {
                 throw NSError(domain: "AnthropicAIService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Error: Invalid response."])
             }
             
-            // Log all response headers to help debug rate limit issues
-            logger.debug("Response status code: \(httpResponse.statusCode)")
-            logger.debug("--- Response Headers ---")
+            // Log headers using the shared method
+            let anthropicRateLimitHeaders = [
+                "x-ratelimit-limit",
+                "x-ratelimit-remaining",
+                "x-ratelimit-reset",
+                "retry-after"
+            ]
             
-            // Only print headers in verbose mode
-            if verbose {
-                print("\n📋 Response Headers:")
-                for (key, value) in httpResponse.allHeaderFields {
-                    let keyString = String(describing: key)
-                    let valueString = String(describing: value)
-                    logger.debug("\(keyString): \(valueString)")
-                    print("  \(keyString): \(valueString)")
-                }
-                
-                // Check for Anthropic specific rate limit headers
-                let rateLimitHeaders = [
-                    "x-ratelimit-limit",
-                    "x-ratelimit-remaining",
-                    "x-ratelimit-reset",
-                    "retry-after"
-                ]
-                
-                print("\n⚠️ Rate Limit Information:")
-                var foundRateLimitHeaders = false
-                
-                for header in rateLimitHeaders {
-                    if let value = httpResponse.allHeaderFields[header] {
-                        let valueString = String(describing: value)
-                        logger.notice("\(header): \(valueString)")
-                        print("  \(header): \(valueString)")
-                        foundRateLimitHeaders = true
-                    }
-                }
-                
-                if !foundRateLimitHeaders {
-                    print("  No specific rate limit headers found")
-                }
-                print("")
-            }
+            QuoteGenerator.logResponseHeaders(
+                httpResponse: httpResponse,
+                rateLimitHeaders: anthropicRateLimitHeaders,
+                verbose: verbose,
+                logger: logger
+            )
             
             // Log response body
             let responseBody = String(data: data, encoding: .utf8) ?? "No response body"
@@ -163,8 +84,7 @@ struct AnthropicAIService: AIServiceProtocol {
                 logger.debug("Successfully decoded Anthropic response")
                 
                 if let content = anthropicResponse.content.first?.text {
-                    let cleanedQuote = content.trimmingCharacters(in: .whitespacesAndNewlines)
-                                             .trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+                    let cleanedQuote = quoteGenerator.cleanQuote(content)
                     logger.notice("✅ Successfully retrieved quote: \(cleanedQuote)")
                     return cleanedQuote
                 } else {
